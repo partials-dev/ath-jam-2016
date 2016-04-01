@@ -1,0 +1,80 @@
+html, body {
+  margin: 0;
+  padding: 0; }
+
+html, body {
+  height: 100%; }
+
+.scene {
+  background-size: auto 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: black;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  pointer-events: none; }
+
+.background {
+  background-image: url("../img/skyless-background.png");
+  background-color: transparent;
+  z-index: -2; }
+
+.sky {
+  background-image: url("../img/sky/grey-sky.png");
+  background-color: black;
+  z-index: -4; }
+
+.owl {
+  background-image: url("../img/owl/owl1.png");
+  background-color: transparent;
+  opacity: 0;
+  transition: opacity 1s;
+  z-index: -1; }
+
+.visible {
+  opacity: 1; }
+
+.invisible {
+  display: none; }
+
+#lightning {
+  background-size: auto 90%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0; }
+
+#letterbox {
+  background-image: url("../img/letterbox.png");
+  background-color: transparent;
+  z-index: 3; }
+
+#psychedelic {
+  background-image: url(../img/banana.gif);
+  z-index: -3;
+  background-size: auto 150%;
+  background-position: 75%;
+  opacity: 0.2; }
+
+canvas[resize] {
+  width: 100%;
+  height: 100%; }
+
+canvas {
+  width: 100%;
+  height: 100%;
+  z-index: 1; }
