@@ -1,9 +1,15 @@
 {
   "name": "ath-jam-2016",
   "description": "Partials' submission to the 2016 Athens Game Jam",
-  "repository": "None",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/partials-music/ath-jam-2016.git"
+  },
   "license": "MIT",
   "version": "0.0.1",
+  "scripts": {
+    "start": "node node_modules/http-server/bin/http-server ./public"
+  },
   "dependencies": {
     "browserify": "^12.0.1",
     "coffeeify": "^2.0.1",
@@ -11,6 +17,7 @@
     "gulp-coffee": "latest",
     "gulp-sass": "^2.0.4",
     "gulp-util": "latest",
+    "http-server": "^0.9.0",
     "lodash": "^3.10.1",
     "node-notifier": "^4.4.0",
     "requiredir": "^1.0.7",
