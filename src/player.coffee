@@ -17,34 +17,63 @@ create = (game) ->
   player.animations.add 'right', [3, 4, 5], 10, true
   cursors = game.input.keyboard.createCursorKeys()
 
+movementScheme =
+  left:
+    dimension: 'x'
+    speed: -SPEED
+  right:
+    dimension: 'x'
+    speed: SPEED
+  up:
+    dimension: 'y'
+    speed: -SPEED
+  down:
+    dimension: 'y'
+    speed: SPEED
+
+getPressedDirections = (keys) ->
+  pressed = (direction for own direction, key of keys when key.isDown)
+  pressed
+
 move = ->
   player.body.velocity.x = 0
   player.body.velocity.y = 0
-  if cursors.left.isDown
-    # Move to the left
-    player.body.velocity.x = -SPEED
-    player.animations.play 'left'
-  else if cursors.right.isDown
-    # Move to the right
-    player.body.velocity.x = SPEED
-    player.animations.play 'right'
-  else if cursors.up.isDown
-    player.body.velocity.y = -SPEED
-    player.animations.play 'up'
-  else if cursors.down.isDown
-    player.body.velocity.y = SPEED
-    player.animations.play 'down'
-  else
+
+  # scale back speed in each direction
+  # if player is pressing more than
+  # one key
+  pressed = getPressedDirections cursors
+  divisor = pressed.length + 1
+  pressed.forEach (direction) ->
+    scheme = movementScheme[direction]
+    player.body.velocity[scheme.dimension] = scheme.speed / divisor
+    player.animations.play direction
+  if pressed.length is 0
     # Stand still
     player.animations.stop()
     player.frame = 4
 
-  # Allow the player to jump if they are touching the ground.
-  if cursors.up.isDown && player.body.touching.down
-      player.body.velocity.y = -350
+  #if cursors.left.isDown
+    ## Move to the left
+    #player.body.velocity.x = -SPEED
+    #player.animations.play 'left'
+  #else if cursors.right.isDown
+    ## Move to the right
+    #player.body.velocity.x = SPEED
+    #player.animations.play 'right'
+  #else if cursors.up.isDown
+    #player.body.velocity.y = -SPEED
+    #player.animations.play 'up'
+  #else if cursors.down.isDown
+    #player.body.velocity.y = SPEED
+    #player.animations.play 'down'
+  #else
 
-  console.log 'created player'
+  # Allow the player to jump if they are touching the ground.
+  #if cursors.up.isDown && player.body.touching.down
+      #player.body.velocity.y = -350
 
 module.exports =
   create: create
   move: move
+  sprite: player

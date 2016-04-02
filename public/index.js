@@ -152,7 +152,8 @@ module.exports = Phaser;
 
 
 },{}],4:[function(require,module,exports){
-var SPEED, create, cursors, move, player;
+var SPEED, create, cursors, getPressedDirections, move, movementScheme, player,
+  hasProp = {}.hasOwnProperty;
 
 player = null;
 
@@ -171,34 +172,64 @@ create = function(game) {
   return cursors = game.input.keyboard.createCursorKeys();
 };
 
+movementScheme = {
+  left: {
+    dimension: 'x',
+    speed: -SPEED
+  },
+  right: {
+    dimension: 'x',
+    speed: SPEED
+  },
+  up: {
+    dimension: 'y',
+    speed: -SPEED
+  },
+  down: {
+    dimension: 'y',
+    speed: SPEED
+  }
+};
+
+getPressedDirections = function(keys) {
+  var direction, key, pressed;
+  pressed = (function() {
+    var results;
+    results = [];
+    for (direction in keys) {
+      if (!hasProp.call(keys, direction)) continue;
+      key = keys[direction];
+      if (key.isDown) {
+        results.push(direction);
+      }
+    }
+    return results;
+  })();
+  return pressed;
+};
+
 move = function() {
+  var divisor, pressed;
   player.body.velocity.x = 0;
   player.body.velocity.y = 0;
-  if (cursors.left.isDown) {
-    player.body.velocity.x = -SPEED;
-    player.animations.play('left');
-  } else if (cursors.right.isDown) {
-    player.body.velocity.x = SPEED;
-    player.animations.play('right');
-  } else if (cursors.up.isDown) {
-    player.body.velocity.y = -SPEED;
-    player.animations.play('up');
-  } else if (cursors.down.isDown) {
-    player.body.velocity.y = SPEED;
-    player.animations.play('down');
-  } else {
+  pressed = getPressedDirections(cursors);
+  divisor = pressed.length + 1;
+  pressed.forEach(function(direction) {
+    var scheme;
+    scheme = movementScheme[direction];
+    player.body.velocity[scheme.dimension] = scheme.speed / divisor;
+    return player.animations.play(direction);
+  });
+  if (pressed.length === 0) {
     player.animations.stop();
-    player.frame = 4;
+    return player.frame = 4;
   }
-  if (cursors.up.isDown && player.body.touching.down) {
-    player.body.velocity.y = -350;
-  }
-  return console.log('created player');
 };
 
 module.exports = {
   create: create,
-  move: move
+  move: move,
+  sprite: player
 };
 
 
