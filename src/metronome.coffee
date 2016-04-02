@@ -1,4 +1,4 @@
-tempo = 120 # bpm
+tempo = 50 # bpm
 beatDuration = 60000 / tempo
 
 lastBeatAt = null
@@ -34,14 +34,18 @@ progressThroughMeasure = ->
   positionInMeasure = performance.now() - lastMeasureStartedAt
   positionInMeasure / measureDuration
 
-msToClosestBeat = ->
-  now = performance.now()
+msToClosestBeat = (offset) ->
+  now = performance.now() + offset
   toLast = now - lastBeatAt
   toNext = now - nextBeatAt()
-  if toNext < toLast
+  if Math.abs(toNext) < Math.abs(toLast)
     toNext
   else
     toLast
+
+isHit = ->
+  ms = msToClosestBeat(0)
+  Math.abs(ms) < beatDuration / 8
 
 module.exports =
   create: create
@@ -52,3 +56,4 @@ module.exports =
   nextMeasureStartsAt: nextMeasureStartsAt
   progressThroughMeasure: progressThroughMeasure
   msToClosestBeat: msToClosestBeat
+  isHit: isHit

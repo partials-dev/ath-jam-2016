@@ -25,12 +25,7 @@ preload = function() {
 met = null;
 
 tryHit = function() {
-  var distance, ms;
-  ms = metronome.msToClosestBeat();
-  distance = Math.abs(ms + 450);
-  console.log("======= " + distance);
-  if (distance < metronome.beatDuration / 2) {
-    console.log('casting');
+  if (metronome.isHit()) {
     return worshippers.cast();
   }
 };
@@ -60,9 +55,9 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 
 
 },{"./metronome":2,"./phaser":3,"./standing-stones":4,"./worshippers":5}],2:[function(require,module,exports){
-var beat, beatDuration, create, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
+var beat, beatDuration, create, isHit, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
-tempo = 120;
+tempo = 50;
 
 beatDuration = 60000 / tempo;
 
@@ -106,16 +101,22 @@ progressThroughMeasure = function() {
   return positionInMeasure / measureDuration;
 };
 
-msToClosestBeat = function() {
+msToClosestBeat = function(offset) {
   var now, toLast, toNext;
-  now = performance.now();
+  now = performance.now() + offset;
   toLast = now - lastBeatAt;
   toNext = now - nextBeatAt();
-  if (toNext < toLast) {
+  if (Math.abs(toNext) < Math.abs(toLast)) {
     return toNext;
   } else {
     return toLast;
   }
+};
+
+isHit = function() {
+  var ms;
+  ms = msToClosestBeat(0);
+  return Math.abs(ms) < beatDuration / 8;
 };
 
 module.exports = {
@@ -130,7 +131,8 @@ module.exports = {
   },
   nextMeasureStartsAt: nextMeasureStartsAt,
   progressThroughMeasure: progressThroughMeasure,
-  msToClosestBeat: msToClosestBeat
+  msToClosestBeat: msToClosestBeat,
+  isHit: isHit
 };
 
 
@@ -170,11 +172,11 @@ create = function(game) {
   params.forEach(function(p) {
     var stone;
     stone = standingStones.create(p.x, p.y, p.sprite, 1);
-    stone.scale.setTo(0.5, 0.5);
+    stone.scale.setTo(0.3, 0.3);
     stone.animations.add('beat', [2, 1], 4, false);
     return stone.animations.add('cast', [3, 1], 4, false);
   });
-  standingStones.scale.set(100, 100);
+  standingStones.scale.set(300, 300);
   return standingStones;
 };
 
@@ -194,10 +196,12 @@ module.exports = {
 
 
 },{"./metronome":2}],5:[function(require,module,exports){
-var cast, create, embiggen, i, move, params, positions, toX, whichSprite, worshippers;
+var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
+
+metronome = require('./metronome');
 
 whichSprite = function(i) {
-  if (i === 0) {
+  if (i === 2) {
     return 'worshipper.elder';
   } else {
     return 'worshipper';
@@ -216,21 +220,9 @@ params = (function() {
   results = [];
   for (i = j = 0; j <= 3; i = ++j) {
     results.push({
-      x: Math.cos(toX(i)),
-      y: Math.sin(toX(i)),
+      x: Math.sin(toX(i)),
+      y: Math.cos(toX(i)),
       sprite: whichSprite(i)
-    });
-  }
-  return results;
-})();
-
-positions = (function() {
-  var j, results;
-  results = [];
-  for (i = j = 0; j <= 100; i = ++j) {
-    results.push({
-      x: Math.cos(toX(i, 100)),
-      y: Math.sin(toX(i, 100))
     });
   }
   return results;
@@ -245,18 +237,23 @@ create = function(game) {
     worshipper = worshippers.create(p.x, p.y, p.sprite, 1);
     worshipper.scale.set(0.5, 0.5);
     if (p.sprite === 'worshipper.elder') {
-      return worshipper.animations.add('cast', [3, 1], 4, false);
+      return worshipper.animations.add('cast', [3, 1], 5, false);
     }
   });
   worshippers.pivot.set(0, 0);
   worshippers.scale.set(100, 100);
-  return worshippers.position.set(100, 100);
+  return worshippers.position.set(170, 160);
 };
 
 move = function(i) {
   var angle;
   angle = i * 360;
   worshippers.angle = angle;
+  if (metronome.isHit()) {
+    worshippers.scale.set(110, 110);
+  } else {
+    worshippers.scale.set(90, 90);
+  }
   return worshippers.forEach(function(worshipper) {
     return worshipper.angle = -angle;
   });
@@ -266,7 +263,7 @@ embiggen = true;
 
 cast = function() {
   var elder;
-  elder = worshippers.children[0];
+  elder = worshippers.children[2];
   return elder.animations.play('cast', false);
 };
 
@@ -277,4 +274,4 @@ module.exports = {
 };
 
 
-},{}]},{},[1]);
+},{"./metronome":2}]},{},[1]);

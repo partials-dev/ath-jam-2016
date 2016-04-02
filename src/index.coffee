@@ -19,11 +19,7 @@ preload = ->
 
 met = null
 tryHit = ->
-  ms = metronome.msToClosestBeat()
-  distance = Math.abs ms + 450
-  console.log "======= #{distance}"
-  if distance < metronome.beatDuration / 2
-    console.log 'casting'
+  if metronome.isHit()
     worshippers.cast()
 
 create = ->
