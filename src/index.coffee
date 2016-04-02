@@ -2,6 +2,7 @@ Phaser = require './phaser'
 metronome = require './metronome'
 standingStones = require './standing-stones'
 worshippers = require './worshippers'
+player = require './player'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
@@ -16,6 +17,9 @@ preload = ->
   game.load.spritesheet 'standing-stone.wood', 'img/wood-stone.bmp', 8, 8
   game.load.spritesheet 'standing-stone.water', 'img/water-stone.bmp', 8, 8
   game.load.spritesheet 'standing-stone.metal', 'img/metal-stone.bmp', 8, 8
+
+  # load player
+  game.load.spritesheet 'player', 'img/green.bmp', 1, 1
 
   # load audio
   game.load.audio 'background', 'sound/test.mp3'
@@ -36,9 +40,11 @@ create = ->
       game.sound.play 'background'
   space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
   space.onDown.add tryHit
+  player.create game
 
 update = ->
   worshippers.move metronome.progressThroughMeasure()
+  player.move()
 
 render = ->
 

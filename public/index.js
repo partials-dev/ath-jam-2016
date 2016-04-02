@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, preload, render, standingStones, tryHit, update, worshippers;
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, player, preload, render, standingStones, tryHit, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -8,6 +8,8 @@ metronome = require('./metronome');
 standingStones = require('./standing-stones');
 
 worshippers = require('./worshippers');
+
+player = require('./player');
 
 GAME_WIDTH = $(window).width();
 
@@ -20,6 +22,7 @@ preload = function() {
   game.load.spritesheet('standing-stone.wood', 'img/wood-stone.bmp', 8, 8);
   game.load.spritesheet('standing-stone.water', 'img/water-stone.bmp', 8, 8);
   game.load.spritesheet('standing-stone.metal', 'img/metal-stone.bmp', 8, 8);
+  game.load.spritesheet('player', 'img/green.bmp', 1, 1);
   return game.load.audio('background', 'sound/test.mp3');
 };
 
@@ -43,11 +46,13 @@ create = function() {
     }
   });
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  return space.onDown.add(tryHit);
+  space.onDown.add(tryHit);
+  return player.create(game);
 };
 
 update = function() {
-  return worshippers.move(metronome.progressThroughMeasure());
+  worshippers.move(metronome.progressThroughMeasure());
+  return player.move();
 };
 
 render = function() {};
@@ -60,7 +65,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./metronome":2,"./phaser":3,"./standing-stones":4,"./worshippers":5}],2:[function(require,module,exports){
+},{"./metronome":2,"./phaser":3,"./player":4,"./standing-stones":5,"./worshippers":6}],2:[function(require,module,exports){
 var beat, beatDuration, create, isHit, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -147,6 +152,57 @@ module.exports = Phaser;
 
 
 },{}],4:[function(require,module,exports){
+var SPEED, create, cursors, move, player;
+
+player = null;
+
+cursors = null;
+
+SPEED = 300;
+
+create = function(game) {
+  player = game.add.sprite(200, 200, 'player');
+  player.scale.set(50, 50);
+  game.physics.arcade.enable(player);
+  player.body.bounce.y = 0.2;
+  player.body.collideWorldBounds = true;
+  player.animations.add('left', [0, 1, 2], 10, true);
+  player.animations.add('right', [3, 4, 5], 10, true);
+  return cursors = game.input.keyboard.createCursorKeys();
+};
+
+move = function() {
+  player.body.velocity.x = 0;
+  player.body.velocity.y = 0;
+  if (cursors.left.isDown) {
+    player.body.velocity.x = -SPEED;
+    player.animations.play('left');
+  } else if (cursors.right.isDown) {
+    player.body.velocity.x = SPEED;
+    player.animations.play('right');
+  } else if (cursors.up.isDown) {
+    player.body.velocity.y = -SPEED;
+    player.animations.play('up');
+  } else if (cursors.down.isDown) {
+    player.body.velocity.y = SPEED;
+    player.animations.play('down');
+  } else {
+    player.animations.stop();
+    player.frame = 4;
+  }
+  if (cursors.up.isDown && player.body.touching.down) {
+    player.body.velocity.y = -350;
+  }
+  return console.log('created player');
+};
+
+module.exports = {
+  create: create,
+  move: move
+};
+
+
+},{}],5:[function(require,module,exports){
 var create, metronome, onBeat, onCast, params, standingStones;
 
 metronome = require('./metronome');
@@ -201,7 +257,7 @@ module.exports = {
 };
 
 
-},{"./metronome":2}],5:[function(require,module,exports){
+},{"./metronome":2}],6:[function(require,module,exports){
 var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
