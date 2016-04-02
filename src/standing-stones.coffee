@@ -3,21 +3,31 @@ params = [
     x: 0.5
     y: 0
     sprite: 'standing-stone.fire'
+    img: 'img/fire-stone.bmp'
   ,
     x: 1
     y: 0.5
-    sprite: 'standing-stone.metal'
+    sprite: 'standing-stone.wind'
+    img: 'img/metal-stone.bmp'
   ,
     x: 0.5
     y: 1
-    sprite: 'standing-stone.wood'
+    sprite: 'standing-stone.earth'
+    img:'img/wood-stone.bmp'
   ,
     x: 0
     y: 0.5
     sprite: 'standing-stone.water'
+    img: 'img/water-stone.bmp'
 ]
 
+spriteKeys = params.map (p) -> p.sprite
+
 standingStones = null
+load = (game) ->
+  params.forEach (p) ->
+    game.load.spritesheet p.sprite, p.img, 8, 8
+
 create = (game) ->
   standingStones = game.add.group()
   params.forEach (p) ->
@@ -36,5 +46,7 @@ onCast = (beat) ->
 
 module.exports =
   create: create
+  load: load
   onBeat: onBeat
   onCast: onCast
+  spriteKeys: spriteKeys
