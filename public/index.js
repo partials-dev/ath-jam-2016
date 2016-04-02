@@ -1,15 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, TEMPO, create, game, preload, render, standingStones, update;
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, metronome, preload, render, standingStones, update;
 
 Phaser = require('./phaser');
+
+metronome = require('./metronome');
 
 standingStones = require('./standing-stones');
 
 GAME_WIDTH = $(window).width();
 
 GAME_HEIGHT = $(window).height();
-
-TEMPO = 100;
 
 preload = function() {
   game.load.image('standing-stones.fire', 'img/red.png');
@@ -19,7 +19,11 @@ preload = function() {
 };
 
 create = function() {
-  return standingStones.create(game);
+  var met;
+  standingStones.create(game);
+  met = metronome.metronome(game);
+  met.add(metronome.shoutBeat);
+  return met.add(standingStones.onBeat);
 };
 
 update = function() {};
@@ -34,12 +38,45 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./phaser":2,"./standing-stones":3}],2:[function(require,module,exports){
-module.exports = Phaser;
+},{"./metronome":2,"./phaser":3,"./standing-stones":4}],2:[function(require,module,exports){
+var metronome, shoutBeat, tempo, tempoMilliseconds;
+
+tempo = 120;
+
+tempoMilliseconds = 60000 / tempo;
+
+metronome = function(game) {
+  var beat, met, updateBeat;
+  beat = 0;
+  met = new Phaser.Signal();
+  updateBeat = function() {
+    met.dispatch(beat);
+    if (beat === 3) {
+      return beat = 0;
+    } else {
+      return beat++;
+    }
+  };
+  game.time.events.loop(tempoMilliseconds, updateBeat);
+  return met;
+};
+
+shoutBeat = function(beat) {
+  return console.log(beat + 1);
+};
+
+module.exports = {
+  metronome: metronome,
+  shoutBeat: shoutBeat
+};
 
 
 },{}],3:[function(require,module,exports){
-var create, params;
+module.exports = Phaser;
+
+
+},{}],4:[function(require,module,exports){
+var create, onBeat, onCast, params, standingStones;
 
 params = [
   {
@@ -61,8 +98,9 @@ params = [
   }
 ];
 
+standingStones = null;
+
 create = function(game) {
-  var standingStones;
   standingStones = game.add.group();
   params.forEach(function(p) {
     var stone;
@@ -73,8 +111,18 @@ create = function(game) {
   return standingStones;
 };
 
+onBeat = function(beat) {
+  return console.log(standingStones.children[beat]);
+};
+
+onCast = function() {
+  return console.log("casting " + element);
+};
+
 module.exports = {
-  create: create
+  create: create,
+  onBeat: onBeat,
+  onCast: onCast
 };
 
 

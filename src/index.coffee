@@ -1,9 +1,11 @@
 Phaser = require './phaser'
+metronome = require './metronome'
 standingStones = require './standing-stones'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
-TEMPO = 100
+
+  
 
 preload = ->
   # load standing stones
@@ -14,6 +16,11 @@ preload = ->
 
 create = ->
   standingStones.create game
+
+  met = metronome.metronome game
+
+  met.add(metronome.shoutBeat)
+  met.add(standingStones.onBeat)
 
 update = ->
 
