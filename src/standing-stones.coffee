@@ -22,7 +22,7 @@ create = (game) ->
   standingStones = game.add.group()
   params.forEach (p) ->
     stone = standingStones.create p.x, p.y, p.sprite, 1
-    stone.scale.setTo 0.5, 0.5
+    stone.scale.setTo 0.1, 0.1
     stone.animations.add 'beat', [2, 1], 4, false
     stone.animations.add 'cast', [3, 1], 4, false
   standingStones.scale.set 100, 100
@@ -31,7 +31,7 @@ create = (game) ->
 onBeat = (beat) ->
   standingStones.children[beat].animations.play 'beat'
 
-onCast = () ->
+onCast = (beat) ->
   standingStones.children[beat].animation.play 'cast'
 
 module.exports =
