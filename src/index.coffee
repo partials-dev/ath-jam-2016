@@ -7,15 +7,15 @@ GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
 
 preload = ->
-  # load standing stones
-  game.load.image 'standing-stone.fire', 'img/red.png'
-  game.load.image 'standing-stone.wood', 'img/green.png'
-  game.load.image 'standing-stone.water', 'img/blue.png'
-  game.load.image 'standing-stone.metal', 'img/silver.png'
-
   # load worshippers
   game.load.image 'worshipper', 'img/silver.png'
   game.load.image 'worshipper.elder', 'img/red.png'
+
+  # load standing stones
+  game.load.spritesheet 'standing-stones.fire', 'img/red.bmp', 1, 1
+  game.load.spritesheet 'standing-stones.wood', 'img/green.bmp', 1, 1
+  game.load.spritesheet 'standing-stones.water', 'img/blue.bmp', 1, 1
+  game.load.spritesheet 'standing-stones.metal', 'img/silver.bmp', 1, 1
 
 met = null
 tryHit = ->
