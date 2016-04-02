@@ -1,3 +1,4 @@
+metronome = require './metronome'
 params = [
     x: 0.5
     y: 0
@@ -27,7 +28,6 @@ create = (game) ->
 
 onBeat = (beat) ->
   console.log standingStones.children[beat]
-
 
 onCast = () ->
   console.log "casting " + element

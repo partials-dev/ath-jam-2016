@@ -28,10 +28,16 @@ move = (i) ->
   worshippers.forEach (worshipper) ->
     worshipper.angle = -angle
 
+embiggen = true
 cast = ->
   elder = worshippers.children[0]
   # cast at 30 fps, don't loop
-  elder.animations.play 'cast', 30, false
+  #elder.animations.play 'cast', 30, false
+  embiggen = !embiggen
+  if embiggen
+    elder.scale.set 0.7
+  else
+    elder.scale.set 0.3
 
 module.exports =
   create: create
