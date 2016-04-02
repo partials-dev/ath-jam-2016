@@ -18,6 +18,9 @@ cast = ->
   hitInfo = metronome.isHit()
   if hitInfo?
     onCast.dispatch hitInfo...
+    music.cast.succeed()
+  else
+    music.cast.fail()
 
 create = (game) ->
   # sprite
