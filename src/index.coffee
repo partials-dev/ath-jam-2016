@@ -9,10 +9,10 @@ GAME_HEIGHT = $(window).height()
 
 preload = ->
   # load standing stones
-  game.load.image 'standing-stones.fire', 'img/red.png'
-  game.load.image 'standing-stones.wood', 'img/green.png'
-  game.load.image 'standing-stones.water', 'img/blue.png'
-  game.load.image 'standing-stones.metal', 'img/silver.png'
+  game.load.spritesheet 'standing-stones.fire', 'img/red.bmp', 1, 1
+  game.load.spritesheet 'standing-stones.wood', 'img/green.bmp', 1, 1
+  game.load.spritesheet 'standing-stones.water', 'img/blue.bmp', 1, 1
+  game.load.spritesheet 'standing-stones.metal', 'img/silver.bmp', 1, 1
 
 create = ->
   standingStones.create game

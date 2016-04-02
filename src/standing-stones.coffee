@@ -20,17 +20,18 @@ standingStones = null
 create = (game) ->
   standingStones = game.add.group()
   params.forEach (p) ->
-    stone = standingStones.create p.x, p.y, p.sprite
+    stone = standingStones.create p.x, p.y, p.sprite, 1
     stone.scale.setTo 0.5, 0.5
+    stone.animations.add 'beat', [2, 1], 4, false 
+    stone.animations.add 'cast', [3, 1], 4, false
   standingStones.scale.set 100, 100
   standingStones
 
 onBeat = (beat) ->
-  console.log standingStones.children[beat]
-
+  standingStones.children[beat].animations.play 'beat'
 
 onCast = () ->
-  console.log "casting " + element
+  standingStones.children[beat].animation.play 'cast'
 
 module.exports =
   create: create

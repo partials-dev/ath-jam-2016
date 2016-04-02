@@ -12,10 +12,10 @@ GAME_WIDTH = $(window).width();
 GAME_HEIGHT = $(window).height();
 
 preload = function() {
-  game.load.image('standing-stones.fire', 'img/red.png');
-  game.load.image('standing-stones.wood', 'img/green.png');
-  game.load.image('standing-stones.water', 'img/blue.png');
-  return game.load.image('standing-stones.metal', 'img/silver.png');
+  game.load.spritesheet('standing-stones.fire', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('standing-stones.wood', 'img/green.bmp', 1, 1);
+  game.load.spritesheet('standing-stones.water', 'img/blue.bmp', 1, 1);
+  return game.load.spritesheet('standing-stones.metal', 'img/silver.bmp', 1, 1);
 };
 
 create = function() {
@@ -104,19 +104,21 @@ create = function(game) {
   standingStones = game.add.group();
   params.forEach(function(p) {
     var stone;
-    stone = standingStones.create(p.x, p.y, p.sprite);
-    return stone.scale.setTo(0.5, 0.5);
+    stone = standingStones.create(p.x, p.y, p.sprite, 1);
+    stone.scale.setTo(0.5, 0.5);
+    stone.animations.add('beat', [2, 1], 4, false);
+    return stone.animations.add('cast', [3, 1], 4, false);
   });
   standingStones.scale.set(100, 100);
   return standingStones;
 };
 
 onBeat = function(beat) {
-  return console.log(standingStones.children[beat]);
+  return standingStones.children[beat].animations.play('beat');
 };
 
 onCast = function() {
-  return console.log("casting " + element);
+  return standingStones.children[beat].animation.play('cast');
 };
 
 module.exports = {
