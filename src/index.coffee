@@ -3,6 +3,7 @@ metronome = require './metronome'
 standingStones = require './standing-stones'
 worshippers = require './worshippers'
 player = require './player'
+midi = require './midi'
 music = require './music'
 duplicates = require './duplicates'
 
