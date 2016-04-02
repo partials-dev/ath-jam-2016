@@ -172,7 +172,7 @@ create = function(game) {
   params.forEach(function(p) {
     var stone;
     stone = standingStones.create(p.x, p.y, p.sprite, 1);
-    stone.scale.setTo(0.3, 0.3);
+    stone.scale.setTo(0.025, 0.025);
     stone.animations.add('beat', [2, 1], 4, false);
     return stone.animations.add('cast', [3, 1], 4, false);
   });
