@@ -1,15 +1,15 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var cast, create, currentMeasure, duplicates, game, load, measureMoved, moveMeasure, onBeat, player, previousMeasure, standingStones, summon;
+var cast, create, currentMeasure, duplicates, game, load, measureMoved, moveMeasure, onBeat, previousMeasure, spawn, standingStones, summon, summonSignal;
 
 standingStones = require('./standing-stones');
-
-player = require('./player');
 
 previousMeasure = [false, false, false, false];
 
 currentMeasure = [];
 
 game = null;
+
+summonSignal = new Phaser.Signal();
 
 load = function(game) {
   game.load.spritesheet('duplicate.fire', 'img/red.bmp', 1, 1);
@@ -55,9 +55,12 @@ cast = function(closestBeat, msToBeat) {
 };
 
 summon = function(element) {
-  var dup, playerPosition;
-  playerPosition = player.sprite().body.position;
-  dup = duplicates.create(playerPosition.x, playerPosition.y, "duplicate." + element, 1);
+  return summonSignal.dispatch(element);
+};
+
+spawn = function(element, position) {
+  var dup;
+  dup = duplicates.create(position.x, position.y, "duplicate." + element, 1);
   return dup.scale.set(50, 50);
 };
 
@@ -65,12 +68,14 @@ module.exports = {
   cast: cast,
   onBeat: onBeat,
   load: load,
-  create: create
+  create: create,
+  summonSignal: summonSignal,
+  spawn: spawn
 };
 
 
-},{"./player":7,"./standing-stones":8}],2:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, midi, music, player, preload, render, standingStones, update, worshippers;
+},{"./standing-stones":8}],2:[function(require,module,exports){
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, music, player, preload, render, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -81,8 +86,6 @@ standingStones = require('./standing-stones');
 worshippers = require('./worshippers');
 
 player = require('./player');
-
-midi = require('./midi');
 
 music = require('./music');
 
@@ -98,7 +101,7 @@ preload = function() {
   standingStones.load(game);
   game.load.spritesheet('player', 'img/green.bmp', 1, 1);
   duplicates.load(game);
-  return game.load.audio('background', 'sound/test.mp3');
+  return music.load(game);
 };
 
 met = null;
@@ -114,7 +117,8 @@ create = function() {
   met.add(music.onBeat);
   met.add(duplicates.onBeat);
   player.onCast.add(worshippers.cast);
-  return player.onCast.add(duplicates.cast);
+  player.onCast.add(duplicates.cast);
+  return duplicates.summonSignal.add(player.summon);
 };
 
 update = function() {
@@ -132,7 +136,49 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":3,"./midi":4,"./music":5,"./phaser":6,"./player":7,"./standing-stones":8,"./worshippers":9}],3:[function(require,module,exports){
+},{"./duplicates":1,"./metronome":4,"./music":5,"./phaser":6,"./player":7,"./standing-stones":8,"./worshippers":9}],3:[function(require,module,exports){
+var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
+
+STARTING_BAR_WIDTH = 50;
+
+STARTING_MANA = 100;
+
+currentMana = STARTING_MANA;
+
+manaBar = null;
+
+create = function(game) {
+  manaBar = game.add.graphics(50, 50);
+  return updateBar(1);
+};
+
+updateBar = function(proportion) {
+  manaBar.clear();
+  manaBar.lineStyle(10, 0x0000ff, 1);
+  manaBar.moveTo(0, 0);
+  return manaBar.lineTo(STARTING_BAR_WIDTH * proportion, 0);
+};
+
+spend = function(amount) {
+  var proportion;
+  currentMana -= amount;
+  if (currentMana < 0) {
+    currentMana = 0;
+  }
+  proportion = currentMana / STARTING_MANA;
+  return updateBar(proportion);
+};
+
+module.exports = {
+  create: create,
+  current: function() {
+    return currentMana;
+  },
+  spend: spend
+};
+
+
+},{}],4:[function(require,module,exports){
 var beat, beatDuration, closestBeat, create, isHit, lastBeatAt, lastMeasureStartedAt, nextBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -229,203 +275,76 @@ module.exports = {
 };
 
 
-},{}],4:[function(require,module,exports){
-var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyController, keyData, listInputs, log, logger, midi, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, type, velocity;
-
-log = console.log.bind(console);
-
-keyData = document.getElementById('key_data');
-
-deviceInfoInputs = document.getElementById('inputs');
-
-deviceInfoOutputs = document.getElementById('outputs');
-
-midi = void 0;
-
-AudioContext = AudioContext || webkitAudioContext;
-
-context = new AudioContext;
-
-activeNotes = [];
-
-btnBox = document.getElementById('content');
-
-btn = document.getElementsByClassName('button');
-
-data = void 0;
-
-cmd = void 0;
-
-channel = void 0;
-
-type = void 0;
-
-note = void 0;
-
-velocity = void 0;
-
-keyController = function(e) {
-  if (e.type === 'keydown') {
-    log(e.keycode);
-    switch (e.keycode) {
-      case 36:
-        log("On!");
-    }
-  } else if (e.type === 'keyup') {
-    switch (e.keyCode) {
-      case 36:
-        log("Off!");
-    }
-  }
-};
-
-onMIDISuccess = function(midiAccess) {
-  var input, inputs;
-  midi = midiAccess;
-  inputs = midi.inputs.values();
-  input = inputs.next();
-  while (input && !input.done) {
-    input.value.onmidimessage = onMIDIMessage;
-    listInputs(input);
-    input = inputs.next();
-  }
-  midi.onstatechange = onStateChange;
-};
-
-onMIDIMessage = function(event) {
-  data = event.data;
-  cmd = data[0] >> 4;
-  channel = data[0] & 0xf;
-  type = data[0] & 0xf0;
-  note = data[1];
-  velocity = data[2];
-  log('MIDI data', data);
-  switch (type) {
-    case 144:
-      noteOn(note, velocity);
-      break;
-    case 128:
-      noteOff(note, velocity);
-  }
-  log('data', data, 'cmd', cmd, 'channel', channel);
-  logger(keyData, 'key data', data);
-};
-
-onStateChange = function(event) {
-  var type;
-  var name, port, state;
-  port = event.port;
-  state = port.state;
-  name = port.name;
-  type = port.type;
-  if (type === 'input') {
-    log('name', name, 'port', port, 'state', state);
-  }
-};
-
-listInputs = function(inputs) {
-  var input;
-  input = inputs.value;
-  log('Input port : [ type:\'' + input.type + '\' id: \'' + input.id + '\' manufacturer: \'' + input.manufacturer + '\' name: \'' + input.name + '\' version: \'' + input.version + '\']');
-};
-
-noteOn = function(midiNote, velocity) {};
-
-noteOff = function(midiNote, velocity) {};
-
-onMIDIFailure = function(e) {
-  log('No access to MIDI devices or your browser doesn\'t support WebMIDI API. Please use WebMIDIAPIShim ' + e);
-};
-
-
-/* MIDI utility functions
-showMIDIPorts = (midiAccess) ->
-  inputs = midiAccess.inputs
-  outputs = midiAccess.outputs
-  html = undefined
-  html = '<h4>MIDI Inputs:</h4><div class="info">'
-  inputs.forEach (port) ->
-    html += '<p>' + port.name + '<p>'
-    html += '<p class="small">connection: ' + port.connection + '</p>'
-    html += '<p class="small">state: ' + port.state + '</p>'
-    html += '<p class="small">manufacturer: ' + port.manufacturer + '</p>'
-    if port.version
-      html += '<p class="small">version: ' + port.version + '</p>'
-    return
-  deviceInfoInputs.innerHTML = html + '</div>'
-  html = '<h4>MIDI Outputs:</h4><div class="info">'
-  outputs.forEach (port) ->
-    html += '<p>' + port.name + '<br>'
-    html += '<p class="small">manufacturer: ' + port.manufacturer + '</p>'
-    if port.version
-      html += '<p class="small">version: ' + port.version + '</p>'
-    return
-  deviceInfoOutputs.innerHTML = html + '</div>'
-  return
- */
-
-randomRange = function(min, max) {
-  return Math.random() * (max + min) + min;
-};
-
-rangeMap = function(x, a1, a2, b1, b2) {
-  return (x - a1) / (a2 - a1) * (b2 - b1) + b1;
-};
-
-frequencyFromNoteNumber = function(note) {
-  return 440 * Math.pow(2, (note - 69) / 12);
-};
-
-logger = function(container, label, data) {
-  var messages;
-  messages = label + ' [channel: ' + (data[0] & 0xf) + ', cmd: ' + (data[0] >> 4) + ', type: ' + (data[0] & 0xf0) + ' , note: ' + data[1] + ' , velocity: ' + data[2] + ']';
-};
-
-if (navigator.requestMIDIAccess) {
-  navigator.requestMIDIAccess({
-    sysex: false
-  }).then(onMIDISuccess, onMIDIFailure);
-} else {
-  alert('No MIDI support in your browser.');
-}
-
-document.addEventListener('keydown', keyController);
-
-document.addEventListener('keyup', keyController);
-
-module.exports;
-
-
 },{}],5:[function(require,module,exports){
-var create, game, onBeat;
+var background, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
+  hasProp = {}.hasOwnProperty;
+
+metronome = require('./metronome');
 
 game = null;
 
+duplicates = {};
+
+background = null;
+
 create = function(g) {
-  return game = g;
+  game = g;
+  background = game.add.audio('background');
+  duplicates.fire = game.add.audio('duplicate.fire', 0);
+  duplicates.water = game.add.audio('duplicate.water', 0);
+  duplicates.wind = game.add.audio('duplicate.wind', 0);
+  return duplicates.earth = game.add.audio('duplicate.earth', 0);
 };
 
 onBeat = function(beat) {
+  var element, results, sound;
   if (beat === 0) {
-    return game.sound.play('background');
+    background.play();
+    results = [];
+    for (element in duplicates) {
+      if (!hasProp.call(duplicates, element)) continue;
+      sound = duplicates[element];
+      results.push(sound.play());
+    }
+    return results;
   }
 };
 
+load = function(game) {
+  game.load.audio('background', 'sound/test.mp3');
+  game.load.audio('duplicate.fire', 'sound/dup-1.mp3');
+  game.load.audio('duplicate.wind', 'sound/dup-2.mp3');
+  game.load.audio('duplicate.earth', 'sound/dup-3.mp3');
+  return game.load.audio('duplicate.water', 'sound/dup-4.mp3');
+};
+
+duplicateSummoned = function(element) {
+  return duplicates[element].fadeIn(50);
+};
+
 module.exports = {
+  load: load,
   create: create,
-  onBeat: onBeat
+  onBeat: onBeat,
+  duplicateSummoned: duplicateSummoned
 };
 
 
-},{}],6:[function(require,module,exports){
+},{"./metronome":4}],6:[function(require,module,exports){
 module.exports = Phaser;
 
 
 },{}],7:[function(require,module,exports){
-var SPEED, cast, create, cursors, getPressedDirections, metronome, move, movementScheme, onCast, player,
+var SPEED, cast, create, cursors, duplicates, getPressedDirections, mana, manaCosts, metronome, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
+
+duplicates = require('./duplicates');
+
+mana = require('./mana');
+
+music = require('./music');
 
 player = null;
 
@@ -434,6 +353,13 @@ cursors = null;
 SPEED = 300;
 
 onCast = new Phaser.Signal();
+
+manaCosts = {
+  fire: 10,
+  water: 10,
+  earth: 10,
+  wind: 10
+};
 
 cast = function() {
   var hitInfo;
@@ -447,11 +373,18 @@ create = function(game) {
   var space;
   player = game.add.sprite(200, 200, 'player');
   player.scale.set(50, 50);
+  mana.create(game);
   game.physics.arcade.enable(player);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
   player.animations.add('left', [0, 1, 2], 10, true);
   player.animations.add('right', [3, 4, 5], 10, true);
+  player.animations.add('up', [0, 1, 2], 10, true);
+  player.animations.add('down', [0, 1, 2], 10, true);
+  player.animations.add('summon.fire', [3, 4, 5], 10, false);
+  player.animations.add('summon.water', [3, 4, 5], 10, false);
+  player.animations.add('summon.wind', [3, 4, 5], 10, false);
+  player.animations.add('summon.earth', [3, 4, 5], 10, false);
   cursors = game.input.keyboard.createCursorKeys();
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   return space.onDown.add(cast);
@@ -511,17 +444,29 @@ move = function() {
   }
 };
 
+summon = function(element) {
+  var cost;
+  cost = manaCosts[element];
+  if ((mana.current() - cost) > 0) {
+    player.animations.play("summon." + element);
+    mana.spend(cost);
+    duplicates.spawn(element, player.body.position);
+    return music.duplicateSummoned(element);
+  }
+};
+
 module.exports = {
   create: create,
   move: move,
   sprite: function() {
     return player;
   },
-  onCast: onCast
+  onCast: onCast,
+  summon: summon
 };
 
 
-},{"./metronome":3}],8:[function(require,module,exports){
+},{"./duplicates":1,"./mana":3,"./metronome":4,"./music":5}],8:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -592,7 +537,7 @@ module.exports = {
 };
 
 
-},{"./metronome":3}],9:[function(require,module,exports){
+},{"./metronome":4}],9:[function(require,module,exports){
 var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
@@ -666,4 +611,4 @@ module.exports = {
 };
 
 
-},{"./metronome":3}]},{},[2]);
+},{"./metronome":4}]},{},[2]);

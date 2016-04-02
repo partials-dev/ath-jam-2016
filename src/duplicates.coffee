@@ -1,5 +1,4 @@
 standingStones = require './standing-stones'
-player = require './player'
 
 previousMeasure = [
   false
@@ -11,6 +10,8 @@ previousMeasure = [
 currentMeasure = []
 
 game = null
+summonSignal = new Phaser.Signal()
+
 load = (game) ->
   game.load.spritesheet 'duplicate.fire', 'img/red.bmp', 1, 1
   game.load.spritesheet 'duplicate.water', 'img/blue.bmp', 1, 1
@@ -46,8 +47,10 @@ cast = (closestBeat, msToBeat) ->
     summon element
 
 summon = (element) ->
-  playerPosition = player.sprite().body.position
-  dup = duplicates.create playerPosition.x, playerPosition.y, "duplicate.#{element}", 1
+  summonSignal.dispatch element
+
+spawn = (element, position) ->
+  dup = duplicates.create position.x, position.y, "duplicate.#{element}", 1
   dup.scale.set 50, 50
 
 module.exports =
@@ -55,3 +58,5 @@ module.exports =
   onBeat: onBeat
   load: load
   create: create
+  summonSignal: summonSignal
+  spawn: spawn

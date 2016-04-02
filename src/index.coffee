@@ -3,7 +3,7 @@ metronome = require './metronome'
 standingStones = require './standing-stones'
 worshippers = require './worshippers'
 player = require './player'
-midi = require './midi'
+#midi = require './midi'
 music = require './music'
 duplicates = require './duplicates'
 
@@ -22,8 +22,9 @@ preload = ->
 
   # load duplicates
   duplicates.load game
+
   # load audio
-  game.load.audio 'background', 'sound/test.mp3'
+  music.load game
 
 met = null
 
@@ -42,6 +43,7 @@ create = ->
   met.add duplicates.onBeat
   player.onCast.add worshippers.cast
   player.onCast.add duplicates.cast
+  duplicates.summonSignal.add player.summon
 
 update = ->
   worshippers.move metronome.progressThroughMeasure()
