@@ -26,23 +26,17 @@ create = (game) ->
 move = (i) ->
   angle = i * 360
   worshippers.angle = angle
-  if metronome.isHit()
-    worshippers.scale.set 110, 110
-  else
-    worshippers.scale.set 90, 90
+  #if metronome.isHit()?
+    #worshippers.scale.set 110, 110
+  #else
+    #worshippers.scale.set 90, 90
   worshippers.forEach (worshipper) ->
     worshipper.angle = -angle
 
 embiggen = true
-cast = ->
+cast = (closestBeat, msToBeat) ->
   elder = worshippers.children[2]
-  # cast at 30 fps, don't loop
   elder.animations.play 'cast', false
-  #embiggen = !embiggen
-  #if embiggen
-    #elder.scale.set 0.7
-  #else
-    #elder.scale.set 0.3
 
 module.exports =
   create: create

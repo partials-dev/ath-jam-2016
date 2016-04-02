@@ -3,22 +3,23 @@ beatDuration = 60000 / tempo
 
 lastBeatAt = null
 lastMeasureStartedAt = null
-beat = 0
+beat = -1
+
+nextBeat = ->
+  if beat is 3
+    0
+  else
+    beat + 1
 
 create = (game) ->
   met = new Phaser.Signal()
 
   updateBeat = () ->
+    beat = nextBeat()
     met.dispatch(beat)
     lastBeatAt = performance.now()
-
     if beat is 0
-      lastMeasureStartedAt = performance.now()
-
-    if beat is 3
-      beat = 0
-    else
-      beat++
+      lastMeasureStartedAt = lastBeatAt
 
   game.time.events.loop beatDuration, updateBeat
   met
@@ -34,18 +35,22 @@ progressThroughMeasure = ->
   positionInMeasure = performance.now() - lastMeasureStartedAt
   positionInMeasure / measureDuration
 
-msToClosestBeat = (offset) ->
+closestBeat = (offset = 0) ->
   now = performance.now() + offset
   toLast = now - lastBeatAt
   toNext = now - nextBeatAt()
   if Math.abs(toNext) < Math.abs(toLast)
-    toNext
+    beat: nextBeat(), ms: toNext
   else
-    toLast
+    beat: beat, ms: toLast
 
+# if close enough to beat
+# return that beat's number
+# else return undefined
 isHit = ->
-  ms = msToClosestBeat(0)
-  Math.abs(ms) < beatDuration / 6
+  closest = closestBeat()
+  if Math.abs(closest.ms) < beatDuration / 6
+    [closest.beat, closest.ms]
 
 module.exports =
   create: create
@@ -55,5 +60,5 @@ module.exports =
   lastMeasureStartedAt: -> lastMeasureStartedAt
   nextMeasureStartsAt: nextMeasureStartsAt
   progressThroughMeasure: progressThroughMeasure
-  msToClosestBeat: msToClosestBeat
+  closestBeat: closestBeat
   isHit: isHit

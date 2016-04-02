@@ -1,5 +1,76 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, music, player, preload, render, standingStones, tryHit, update, worshippers;
+var cast, create, currentMeasure, duplicates, game, load, measureMoved, moveMeasure, onBeat, player, previousMeasure, standingStones, summon;
+
+standingStones = require('./standing-stones');
+
+player = require('./player');
+
+previousMeasure = [false, false, false, false];
+
+currentMeasure = [];
+
+game = null;
+
+load = function(game) {
+  game.load.spritesheet('duplicate.fire', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('duplicate.water', 'img/blue.bmp', 1, 1);
+  game.load.spritesheet('duplicate.earth', 'img/green.bmp', 1, 1);
+  return game.load.spritesheet('duplicate.wind', 'img/silver.bmp', 1, 1);
+};
+
+duplicates = null;
+
+create = function(g) {
+  game = g;
+  return duplicates = game.add.group();
+};
+
+measureMoved = false;
+
+moveMeasure = function() {
+  measureMoved = true;
+  previousMeasure = currentMeasure;
+  return currentMeasure = [false, false, false, false];
+};
+
+onBeat = function(beat) {
+  if (beat === 3) {
+    measureMoved = false;
+  }
+  if (beat === 0 && !measureMoved) {
+    return moveMeasure();
+  }
+};
+
+cast = function(closestBeat, msToBeat) {
+  var element;
+  if (closestBeat === 0 && msToBeat < 0) {
+    moveMeasure();
+  }
+  currentMeasure[closestBeat] = true;
+  if (previousMeasure[closestBeat]) {
+    element = standingStones.spriteKeys[closestBeat].split('.')[1];
+    return summon(element);
+  }
+};
+
+summon = function(element) {
+  var dup, playerPosition;
+  playerPosition = player.sprite().body.position;
+  dup = duplicates.create(playerPosition.x, playerPosition.y, "duplicate." + element, 1);
+  return dup.scale.set(50, 50);
+};
+
+module.exports = {
+  cast: cast,
+  onBeat: onBeat,
+  load: load,
+  create: create
+};
+
+
+},{"./player":6,"./standing-stones":7}],2:[function(require,module,exports){
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, music, player, preload, render, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -13,6 +84,8 @@ player = require('./player');
 
 music = require('./music');
 
+duplicates = require('./duplicates');
+
 GAME_WIDTH = $(window).width();
 
 GAME_HEIGHT = $(window).height();
@@ -20,33 +93,26 @@ GAME_HEIGHT = $(window).height();
 preload = function() {
   game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
   game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('standing-stone.fire', 'img/fire-stone.bmp', 8, 8);
-  game.load.spritesheet('standing-stone.wood', 'img/wood-stone.bmp', 8, 8);
-  game.load.spritesheet('standing-stone.water', 'img/water-stone.bmp', 8, 8);
-  game.load.spritesheet('standing-stone.metal', 'img/metal-stone.bmp', 8, 8);
+  standingStones.load(game);
   game.load.spritesheet('player', 'img/green.bmp', 1, 1);
+  duplicates.load(game);
   return game.load.audio('background', 'sound/test.mp3');
 };
 
 met = null;
 
-tryHit = function() {
-  if (metronome.isHit()) {
-    return worshippers.cast();
-  }
-};
-
 create = function() {
-  var space;
   standingStones.create(game);
   worshippers.create(game);
   music.create(game);
   met = metronome.create(game);
   player.create(game);
+  duplicates.create(game);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
-  space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  return space.onDown.add(tryHit);
+  met.add(duplicates.onBeat);
+  player.onCast.add(worshippers.cast);
+  return player.onCast.add(duplicates.cast);
 };
 
 update = function() {
@@ -64,8 +130,8 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./metronome":2,"./music":3,"./phaser":4,"./player":5,"./standing-stones":6,"./worshippers":7}],2:[function(require,module,exports){
-var beat, beatDuration, create, isHit, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
+},{"./duplicates":1,"./metronome":3,"./music":4,"./phaser":5,"./player":6,"./standing-stones":7,"./worshippers":8}],3:[function(require,module,exports){
+var beat, beatDuration, closestBeat, create, isHit, lastBeatAt, lastMeasureStartedAt, nextBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
 
@@ -75,21 +141,25 @@ lastBeatAt = null;
 
 lastMeasureStartedAt = null;
 
-beat = 0;
+beat = -1;
+
+nextBeat = function() {
+  if (beat === 3) {
+    return 0;
+  } else {
+    return beat + 1;
+  }
+};
 
 create = function(game) {
   var met, updateBeat;
   met = new Phaser.Signal();
   updateBeat = function() {
+    beat = nextBeat();
     met.dispatch(beat);
     lastBeatAt = performance.now();
     if (beat === 0) {
-      lastMeasureStartedAt = performance.now();
-    }
-    if (beat === 3) {
-      return beat = 0;
-    } else {
-      return beat++;
+      return lastMeasureStartedAt = lastBeatAt;
     }
   };
   game.time.events.loop(beatDuration, updateBeat);
@@ -111,22 +181,33 @@ progressThroughMeasure = function() {
   return positionInMeasure / measureDuration;
 };
 
-msToClosestBeat = function(offset) {
+closestBeat = function(offset) {
   var now, toLast, toNext;
+  if (offset == null) {
+    offset = 0;
+  }
   now = performance.now() + offset;
   toLast = now - lastBeatAt;
   toNext = now - nextBeatAt();
   if (Math.abs(toNext) < Math.abs(toLast)) {
-    return toNext;
+    return {
+      beat: nextBeat(),
+      ms: toNext
+    };
   } else {
-    return toLast;
+    return {
+      beat: beat,
+      ms: toLast
+    };
   }
 };
 
 isHit = function() {
-  var ms;
-  ms = msToClosestBeat(0);
-  return Math.abs(ms) < beatDuration / 6;
+  var closest;
+  closest = closestBeat();
+  if (Math.abs(closest.ms) < beatDuration / 6) {
+    return [closest.beat, closest.ms];
+  }
 };
 
 module.exports = {
@@ -141,12 +222,12 @@ module.exports = {
   },
   nextMeasureStartsAt: nextMeasureStartsAt,
   progressThroughMeasure: progressThroughMeasure,
-  msToClosestBeat: msToClosestBeat,
+  closestBeat: closestBeat,
   isHit: isHit
 };
 
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var create, game, onBeat;
 
 game = null;
@@ -167,13 +248,15 @@ module.exports = {
 };
 
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],5:[function(require,module,exports){
-var SPEED, create, cursors, getPressedDirections, move, movementScheme, player,
+},{}],6:[function(require,module,exports){
+var SPEED, cast, create, cursors, getPressedDirections, metronome, move, movementScheme, onCast, player,
   hasProp = {}.hasOwnProperty;
+
+metronome = require('./metronome');
 
 player = null;
 
@@ -181,7 +264,18 @@ cursors = null;
 
 SPEED = 300;
 
+onCast = new Phaser.Signal();
+
+cast = function() {
+  var hitInfo;
+  hitInfo = metronome.isHit();
+  if (hitInfo != null) {
+    return onCast.dispatch.apply(onCast, hitInfo);
+  }
+};
+
 create = function(game) {
+  var space;
   player = game.add.sprite(200, 200, 'player');
   player.scale.set(50, 50);
   game.physics.arcade.enable(player);
@@ -189,7 +283,9 @@ create = function(game) {
   player.body.collideWorldBounds = true;
   player.animations.add('left', [0, 1, 2], 10, true);
   player.animations.add('right', [3, 4, 5], 10, true);
-  return cursors = game.input.keyboard.createCursorKeys();
+  cursors = game.input.keyboard.createCursorKeys();
+  space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  return space.onDown.add(cast);
 };
 
 movementScheme = {
@@ -249,12 +345,15 @@ move = function() {
 module.exports = {
   create: create,
   move: move,
-  sprite: player
+  sprite: function() {
+    return player;
+  },
+  onCast: onCast
 };
 
 
-},{}],6:[function(require,module,exports){
-var create, metronome, onBeat, onCast, params, standingStones;
+},{"./metronome":3}],7:[function(require,module,exports){
+var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
 
@@ -262,23 +361,37 @@ params = [
   {
     x: 0.5,
     y: 0,
-    sprite: 'standing-stone.fire'
+    sprite: 'standing-stone.fire',
+    img: 'img/fire-stone.bmp'
   }, {
     x: 1,
     y: 0.5,
-    sprite: 'standing-stone.metal'
+    sprite: 'standing-stone.wind',
+    img: 'img/metal-stone.bmp'
   }, {
     x: 0.5,
     y: 1,
-    sprite: 'standing-stone.wood'
+    sprite: 'standing-stone.earth',
+    img: 'img/wood-stone.bmp'
   }, {
     x: 0,
     y: 0.5,
-    sprite: 'standing-stone.water'
+    sprite: 'standing-stone.water',
+    img: 'img/water-stone.bmp'
   }
 ];
 
+spriteKeys = params.map(function(p) {
+  return p.sprite;
+});
+
 standingStones = null;
+
+load = function(game) {
+  return params.forEach(function(p) {
+    return game.load.spritesheet(p.sprite, p.img, 8, 8);
+  });
+};
 
 create = function(game) {
   standingStones = game.add.group();
@@ -303,12 +416,14 @@ onCast = function(beat) {
 
 module.exports = {
   create: create,
+  load: load,
   onBeat: onBeat,
-  onCast: onCast
+  onCast: onCast,
+  spriteKeys: spriteKeys
 };
 
 
-},{"./metronome":2}],7:[function(require,module,exports){
+},{"./metronome":3}],8:[function(require,module,exports){
 var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
@@ -362,11 +477,6 @@ move = function(i) {
   var angle;
   angle = i * 360;
   worshippers.angle = angle;
-  if (metronome.isHit()) {
-    worshippers.scale.set(110, 110);
-  } else {
-    worshippers.scale.set(90, 90);
-  }
   return worshippers.forEach(function(worshipper) {
     return worshipper.angle = -angle;
   });
@@ -374,7 +484,7 @@ move = function(i) {
 
 embiggen = true;
 
-cast = function() {
+cast = function(closestBeat, msToBeat) {
   var elder;
   elder = worshippers.children[2];
   return elder.animations.play('cast', false);
@@ -387,4 +497,4 @@ module.exports = {
 };
 
 
-},{"./metronome":2}]},{},[1]);
+},{"./metronome":3}]},{},[2]);

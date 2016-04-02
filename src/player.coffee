@@ -1,6 +1,14 @@
+metronome = require './metronome'
+
 player = null
 cursors = null
 SPEED = 300
+onCast = new Phaser.Signal()
+
+cast = ->
+  hitInfo = metronome.isHit()
+  if hitInfo?
+    onCast.dispatch hitInfo...
 
 create = (game) ->
   # sprite
@@ -16,6 +24,10 @@ create = (game) ->
   player.animations.add 'left', [0, 1, 2], 10, true
   player.animations.add 'right', [3, 4, 5], 10, true
   cursors = game.input.keyboard.createCursorKeys()
+
+  # input
+  space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
+  space.onDown.add cast
 
 movementScheme =
   left:
@@ -56,4 +68,5 @@ move = ->
 module.exports =
   create: create
   move: move
-  sprite: player
+  sprite: -> player
+  onCast: onCast
