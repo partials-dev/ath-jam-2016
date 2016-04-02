@@ -1,27 +1,23 @@
 Phaser = require './phaser'
+standingStones = require './standing-stones'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
+TEMPO = 100
 
 preload = ->
-  game.load.image 'background', 'img/background.png'
-  game.load.image 'bmo', 'img/bmo-sad.png'
+  # load standing stones
+  game.load.image 'standing-stones.fire', 'img/red.png'
+  game.load.image 'standing-stones.wood', 'img/green.png'
+  game.load.image 'standing-stones.water', 'img/blue.png'
+  game.load.image 'standing-stones.metal', 'img/silver.png'
 
-DELAY = 100
 create = ->
-  game.add.sprite 0, 0, 'bmo'
-  i = 0
-  quarterNote = ->
-    i++
-    currentTime = performance.now()
-    timeElapsed = currentTime - startTime
-    difference = timeElapsed - (i * DELAY)
-    console.log "Difference: #{difference}"
-
-  game.time.events.loop DELAY, quarterNote
-  startTime = performance.now()
+  standingStones.create game
 
 update = ->
 
-game = new Phaser.Game GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', preload: preload, create: create, update: update
+render = ->
+
+game = new Phaser.Game GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', preload: preload, create: create, update: update, render: render
 
