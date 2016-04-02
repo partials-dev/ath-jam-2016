@@ -14,10 +14,10 @@ worshippers = null
 create = (game) ->
   worshippers = game.add.group()
   params.forEach (p) ->
-    worshipper = worshippers.create p.x, p.y, p.sprite
+    worshipper = worshippers.create p.x, p.y, p.sprite, 1
     worshipper.scale.set 0.5, 0.5
     if p.sprite is 'worshipper.elder'
-      worshipper.animations.add 'cast'
+      worshipper.animations.add 'cast', [3, 1], 4, false
   worshippers.pivot.set 0, 0
   worshippers.scale.set 100, 100
   worshippers.position.set 100, 100
@@ -32,12 +32,12 @@ embiggen = true
 cast = ->
   elder = worshippers.children[0]
   # cast at 30 fps, don't loop
-  #elder.animations.play 'cast', 30, false
-  embiggen = !embiggen
-  if embiggen
-    elder.scale.set 0.7
-  else
-    elder.scale.set 0.3
+  elder.animations.play 'cast', false
+  #embiggen = !embiggen
+  #if embiggen
+    #elder.scale.set 0.7
+  #else
+    #elder.scale.set 0.3
 
 module.exports =
   create: create

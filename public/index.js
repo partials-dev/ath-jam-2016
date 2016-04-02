@@ -14,12 +14,12 @@ GAME_WIDTH = $(window).width();
 GAME_HEIGHT = $(window).height();
 
 preload = function() {
-  game.load.image('worshipper', 'img/silver.png');
-  game.load.image('worshipper.elder', 'img/red.png');
-  game.load.spritesheet('standing-stones.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('standing-stones.wood', 'img/green.bmp', 1, 1);
-  game.load.spritesheet('standing-stones.water', 'img/blue.bmp', 1, 1);
-  return game.load.spritesheet('standing-stones.metal', 'img/silver.bmp', 1, 1);
+  game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
+  game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('standing-stone.fire', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('standing-stone.wood', 'img/green.bmp', 1, 1);
+  game.load.spritesheet('standing-stone.water', 'img/blue.bmp', 1, 1);
+  return game.load.spritesheet('standing-stone.metal', 'img/silver.bmp', 1, 1);
 };
 
 met = null;
@@ -242,10 +242,10 @@ create = function(game) {
   worshippers = game.add.group();
   params.forEach(function(p) {
     var worshipper;
-    worshipper = worshippers.create(p.x, p.y, p.sprite);
+    worshipper = worshippers.create(p.x, p.y, p.sprite, 1);
     worshipper.scale.set(0.5, 0.5);
     if (p.sprite === 'worshipper.elder') {
-      return worshipper.animations.add('cast');
+      return worshipper.animations.add('cast', [3, 1], 4, false);
     }
   });
   worshippers.pivot.set(0, 0);
@@ -267,12 +267,7 @@ embiggen = true;
 cast = function() {
   var elder;
   elder = worshippers.children[0];
-  embiggen = !embiggen;
-  if (embiggen) {
-    return elder.scale.set(0.7);
-  } else {
-    return elder.scale.set(0.3);
-  }
+  return elder.animations.play('cast', false);
 };
 
 module.exports = {
