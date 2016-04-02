@@ -4,6 +4,7 @@ standingStones = require './standing-stones'
 worshippers = require './worshippers'
 player = require './player'
 midi = require './midi'
+music = require './music'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
@@ -32,16 +33,18 @@ tryHit = ->
     #standingStones.onCast()
 
 create = ->
+  # create modules
   standingStones.create game
   worshippers.create game
+  music.create game
   met = metronome.create game
-  met.add(standingStones.onBeat)
-  met.add (beat) ->
-    if beat is 0
-      game.sound.play 'background'
+  player.create game
+
+  # wire up event listeners
+  met.add standingStones.onBeat
+  met.add music.onBeat
   space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
   space.onDown.add tryHit
-  player.create game
 
 update = ->
   worshippers.move metronome.progressThroughMeasure()

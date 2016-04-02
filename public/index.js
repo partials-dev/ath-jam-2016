@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, midi, player, preload, render, standingStones, tryHit, update, worshippers;
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, midi, music, player, preload, render, standingStones, tryHit, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -12,6 +12,8 @@ worshippers = require('./worshippers');
 player = require('./player');
 
 midi = require('./midi');
+
+music = require('./music');
 
 GAME_WIDTH = $(window).width();
 
@@ -40,16 +42,13 @@ create = function() {
   var space;
   standingStones.create(game);
   worshippers.create(game);
+  music.create(game);
   met = metronome.create(game);
+  player.create(game);
   met.add(standingStones.onBeat);
-  met.add(function(beat) {
-    if (beat === 0) {
-      return game.sound.play('background');
-    }
-  });
+  met.add(music.onBeat);
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  space.onDown.add(tryHit);
-  return player.create(game);
+  return space.onDown.add(tryHit);
 };
 
 update = function() {
@@ -67,7 +66,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./metronome":2,"./midi":3,"./phaser":4,"./player":5,"./standing-stones":6,"./worshippers":7}],2:[function(require,module,exports){
+},{"./metronome":2,"./midi":3,"./music":4,"./phaser":5,"./player":6,"./standing-stones":7,"./worshippers":8}],2:[function(require,module,exports){
 var beat, beatDuration, create, isHit, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -317,11 +316,33 @@ module.exports;
 
 
 },{}],4:[function(require,module,exports){
-module.exports = Phaser;
+var create, game, onBeat;
+
+game = null;
+
+create = function(g) {
+  return game = g;
+};
+
+onBeat = function(beat) {
+  if (beat === 0) {
+    return game.sound.play('background');
+  }
+};
+
+module.exports = {
+  create: create,
+  onBeat: onBeat
+};
 
 
 },{}],5:[function(require,module,exports){
-var SPEED, create, cursors, move, player;
+module.exports = Phaser;
+
+
+},{}],6:[function(require,module,exports){
+var SPEED, create, cursors, getPressedDirections, move, movementScheme, player,
+  hasProp = {}.hasOwnProperty;
 
 player = null;
 
@@ -340,38 +361,68 @@ create = function(game) {
   return cursors = game.input.keyboard.createCursorKeys();
 };
 
+movementScheme = {
+  left: {
+    dimension: 'x',
+    speed: -SPEED
+  },
+  right: {
+    dimension: 'x',
+    speed: SPEED
+  },
+  up: {
+    dimension: 'y',
+    speed: -SPEED
+  },
+  down: {
+    dimension: 'y',
+    speed: SPEED
+  }
+};
+
+getPressedDirections = function(keys) {
+  var direction, key, pressed;
+  pressed = (function() {
+    var results;
+    results = [];
+    for (direction in keys) {
+      if (!hasProp.call(keys, direction)) continue;
+      key = keys[direction];
+      if (key.isDown) {
+        results.push(direction);
+      }
+    }
+    return results;
+  })();
+  return pressed;
+};
+
 move = function() {
+  var divisor, pressed;
   player.body.velocity.x = 0;
   player.body.velocity.y = 0;
-  if (cursors.left.isDown) {
-    player.body.velocity.x = -SPEED;
-    player.animations.play('left');
-  } else if (cursors.right.isDown) {
-    player.body.velocity.x = SPEED;
-    player.animations.play('right');
-  } else if (cursors.up.isDown) {
-    player.body.velocity.y = -SPEED;
-    player.animations.play('up');
-  } else if (cursors.down.isDown) {
-    player.body.velocity.y = SPEED;
-    player.animations.play('down');
-  } else {
+  pressed = getPressedDirections(cursors);
+  divisor = pressed.length + 1;
+  pressed.forEach(function(direction) {
+    var scheme;
+    scheme = movementScheme[direction];
+    player.body.velocity[scheme.dimension] = scheme.speed / divisor;
+    return player.animations.play(direction);
+  });
+  if (pressed.length === 0) {
     player.animations.stop();
-    player.frame = 4;
+    return player.frame = 4;
   }
-  if (cursors.up.isDown && player.body.touching.down) {
-    player.body.velocity.y = -350;
-  }
-  return console.log('created player');
 };
 
 module.exports = {
   create: create,
-  move: move
+  move: move,
+  sprite: player
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var create, metronome, onBeat, onCast, params, standingStones;
 
 metronome = require('./metronome');
@@ -426,7 +477,7 @@ module.exports = {
 };
 
 
-},{"./metronome":2}],7:[function(require,module,exports){
+},{"./metronome":2}],8:[function(require,module,exports){
 var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
