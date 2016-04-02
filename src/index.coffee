@@ -11,6 +11,9 @@ GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
 
 preload = ->
+  game.renderer.renderSession.roundPixels = true
+  Phaser.Canvas.setImageRenderingCrisp this.game.canvas
+
   # load worshippers
   game.load.spritesheet 'worshipper', 'img/silver.bmp', 1, 1
   game.load.spritesheet 'worshipper.elder', 'img/red.bmp', 1, 1
@@ -40,6 +43,7 @@ create = ->
   # wire up event listeners
   met.add standingStones.onBeat
   met.add music.onBeat
+  
   met.add duplicates.onBeat
   player.onCast.add worshippers.cast
   player.onCast.add duplicates.cast

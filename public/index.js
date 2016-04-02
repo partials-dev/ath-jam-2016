@@ -74,7 +74,7 @@ module.exports = {
 };
 
 
-},{"./standing-stones":8}],2:[function(require,module,exports){
+},{"./standing-stones":9}],2:[function(require,module,exports){
 var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, music, player, preload, render, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
@@ -96,6 +96,8 @@ GAME_WIDTH = $(window).width();
 GAME_HEIGHT = $(window).height();
 
 preload = function() {
+  game.renderer.renderSession.roundPixels = true;
+  Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
   game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
   standingStones.load(game);
@@ -136,7 +138,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":4,"./music":5,"./phaser":6,"./player":7,"./standing-stones":8,"./worshippers":9}],3:[function(require,module,exports){
+},{"./duplicates":1,"./metronome":4,"./music":6,"./phaser":7,"./player":8,"./standing-stones":9,"./worshippers":10}],3:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -276,6 +278,190 @@ module.exports = {
 
 
 },{}],5:[function(require,module,exports){
+var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyData, listInputs, log, logger, midi, midiMovementState, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, signal, type, velocity;
+
+log = console.log.bind(console);
+
+keyData = document.getElementById('key_data');
+
+deviceInfoInputs = document.getElementById('inputs');
+
+deviceInfoOutputs = document.getElementById('outputs');
+
+midi = void 0;
+
+AudioContext = AudioContext || webkitAudioContext;
+
+context = new AudioContext;
+
+activeNotes = [];
+
+btnBox = document.getElementById('content');
+
+btn = document.getElementsByClassName('button');
+
+data = void 0;
+
+cmd = void 0;
+
+channel = void 0;
+
+type = void 0;
+
+note = void 0;
+
+velocity = void 0;
+
+onMIDISuccess = function(midiAccess) {
+  var input, inputs;
+  midi = midiAccess;
+  inputs = midi.inputs.values();
+  input = inputs.next();
+  while (input && !input.done) {
+    input.value.onmidimessage = onMIDIMessage;
+    listInputs(input);
+    input = inputs.next();
+  }
+  midi.onstatechange = onStateChange;
+};
+
+signal = new Phaser.Signal();
+
+midiMovementState = {
+  up: {
+    isDown: false
+  },
+  down: {
+    isDown: false
+  },
+  left: {
+    isDown: false
+  },
+  right: {
+    isDown: false
+  }
+};
+
+onMIDIMessage = function(event) {
+  var direction, hasKey, noteToDirection;
+  data = event.data;
+  cmd = data[0] >> 4;
+  channel = data[0] & 0xf;
+  type = data[0] & 0xf0;
+  note = data[1];
+  velocity = data[2];
+  noteToDirection = {
+    49: 'up',
+    45: 'down',
+    44: 'left',
+    46: 'right'
+  };
+  hasKey = function(obj, key) {
+    return Object.keys(obj).indexOf(key) !== -1;
+  };
+  switch (type) {
+    case 144:
+      signal.dispatch(note);
+      if (hasKey(noteToDirection, JSON.stringify(note))) {
+        direction = noteToDirection[note];
+        midiMovementState[direction].isDown = true;
+        return console.log(direction + midiMovementState[direction].isDown);
+      }
+      break;
+    case 128:
+      if (hasKey(noteToDirection, JSON.stringify(note))) {
+        direction = noteToDirection[note];
+        midiMovementState[direction].isDown = false;
+        return console.log(direction + midiMovementState[direction].isDown);
+      }
+  }
+};
+
+onStateChange = function(event) {
+  var type;
+  var name, port, state;
+  port = event.port;
+  state = port.state;
+  name = port.name;
+  type = port.type;
+  if (type === 'input') {
+    log('name', name, 'port', port, 'state', state);
+  }
+};
+
+listInputs = function(inputs) {
+  var input;
+  input = inputs.value;
+  log('Input port : [ type:\'' + input.type + '\' id: \'' + input.id + '\' manufacturer: \'' + input.manufacturer + '\' name: \'' + input.name + '\' version: \'' + input.version + '\']');
+};
+
+noteOn = function(midiNote, velocity) {};
+
+noteOff = function(midiNote, velocity) {};
+
+onMIDIFailure = function(e) {
+  log('No access to MIDI devices or your browser doesn\'t support WebMIDI API. Please use WebMIDIAPIShim ' + e);
+};
+
+
+/* MIDI utility functions
+showMIDIPorts = (midiAccess) ->
+  inputs = midiAccess.inputs
+  outputs = midiAccess.outputs
+  html = undefined
+  html = '<h4>MIDI Inputs:</h4><div class="info">'
+  inputs.forEach (port) ->
+    html += '<p>' + port.name + '<p>'
+    html += '<p class="small">connection: ' + port.connection + '</p>'
+    html += '<p class="small">state: ' + port.state + '</p>'
+    html += '<p class="small">manufacturer: ' + port.manufacturer + '</p>'
+    if port.version
+      html += '<p class="small">version: ' + port.version + '</p>'
+    return
+  deviceInfoInputs.innerHTML = html + '</div>'
+  html = '<h4>MIDI Outputs:</h4><div class="info">'
+  outputs.forEach (port) ->
+    html += '<p>' + port.name + '<br>'
+    html += '<p class="small">manufacturer: ' + port.manufacturer + '</p>'
+    if port.version
+      html += '<p class="small">version: ' + port.version + '</p>'
+    return
+  deviceInfoOutputs.innerHTML = html + '</div>'
+  return
+ */
+
+randomRange = function(min, max) {
+  return Math.random() * (max + min) + min;
+};
+
+rangeMap = function(x, a1, a2, b1, b2) {
+  return (x - a1) / (a2 - a1) * (b2 - b1) + b1;
+};
+
+frequencyFromNoteNumber = function(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+};
+
+logger = function(container, label, data) {
+  var messages;
+  messages = label + ' [channel: ' + (data[0] & 0xf) + ', cmd: ' + (data[0] >> 4) + ', type: ' + (data[0] & 0xf0) + ' , note: ' + data[1] + ' , velocity: ' + data[2] + ']';
+};
+
+if (navigator.requestMIDIAccess) {
+  navigator.requestMIDIAccess({
+    sysex: false
+  }).then(onMIDISuccess, onMIDIFailure);
+} else {
+  alert('No MIDI support in your browser.');
+}
+
+module.exports = {
+  signal: signal,
+  movementState: midiMovementState
+};
+
+
+},{}],6:[function(require,module,exports){
 var background, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
   hasProp = {}.hasOwnProperty;
 
@@ -330,12 +516,12 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],6:[function(require,module,exports){
+},{"./metronome":4}],7:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],7:[function(require,module,exports){
-var SPEED, cast, create, cursors, duplicates, getPressedDirections, mana, manaCosts, metronome, move, movementScheme, music, onCast, player, summon,
+},{}],8:[function(require,module,exports){
+var SPEED, cast, create, cursors, duplicates, getPressedDirections, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
@@ -345,6 +531,8 @@ duplicates = require('./duplicates');
 mana = require('./mana');
 
 music = require('./music');
+
+midi = require('./midi');
 
 player = null;
 
@@ -387,7 +575,13 @@ create = function(game) {
   player.animations.add('summon.earth', [3, 4, 5], 10, false);
   cursors = game.input.keyboard.createCursorKeys();
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  return space.onDown.add(cast);
+  space.onDown.add(cast);
+  return midi.signal.add(function(pitch) {
+    switch (pitch) {
+      case 48:
+        return cast();
+    }
+  });
 };
 
 movementScheme = {
@@ -410,7 +604,7 @@ movementScheme = {
 };
 
 getPressedDirections = function(keys) {
-  var direction, key, pressed;
+  var direction, key, midiPressed, pressed;
   pressed = (function() {
     var results;
     results = [];
@@ -423,7 +617,20 @@ getPressedDirections = function(keys) {
     }
     return results;
   })();
-  return pressed;
+  midiPressed = (function() {
+    var ref, results;
+    ref = midi.movementState;
+    results = [];
+    for (direction in ref) {
+      if (!hasProp.call(ref, direction)) continue;
+      key = ref[direction];
+      if (key.isDown) {
+        results.push(direction);
+      }
+    }
+    return results;
+  })();
+  return pressed.concat(midiPressed);
 };
 
 move = function() {
@@ -466,7 +673,7 @@ module.exports = {
 };
 
 
-},{"./duplicates":1,"./mana":3,"./metronome":4,"./music":5}],8:[function(require,module,exports){
+},{"./duplicates":1,"./mana":3,"./metronome":4,"./midi":5,"./music":6}],9:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -537,7 +744,7 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],9:[function(require,module,exports){
+},{"./metronome":4}],10:[function(require,module,exports){
 var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');

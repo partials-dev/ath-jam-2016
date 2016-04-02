@@ -2,6 +2,7 @@ metronome = require './metronome'
 duplicates = require './duplicates'
 mana = require './mana'
 music = require './music'
+midi = require './midi'
 
 player = null
 cursors = null
@@ -45,7 +46,10 @@ create = (game) ->
   # input
   space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
   space.onDown.add cast
-
+  midi.signal.add (pitch) ->
+    switch pitch
+      when 48 then cast()
+        
 movementScheme =
   left:
     dimension: 'x'
@@ -62,7 +66,10 @@ movementScheme =
 
 getPressedDirections = (keys) ->
   pressed = (direction for own direction, key of keys when key.isDown)
-  pressed
+  midiPressed = (direction for own direction, key of midi.movementState when key.isDown )
+  
+  pressed.concat midiPressed
+  
 
 move = ->
   player.body.velocity.x = 0
