@@ -3,6 +3,7 @@ metronome = require './metronome'
 standingStones = require './standing-stones'
 worshippers = require './worshippers'
 player = require './player'
+midi = require './midi'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
