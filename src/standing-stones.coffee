@@ -1,19 +1,19 @@
 params = [
     x: 0.5
     y: 0
-    sprite: 'standing-stones.fire'
+    sprite: 'standing-stone.fire'
   ,
     x: 1
     y: 0.5
-    sprite: 'standing-stones.metal'
+    sprite: 'standing-stone.metal'
   ,
     x: 0.5
     y: 1
-    sprite: 'standing-stones.wood'
+    sprite: 'standing-stone.wood'
   ,
     x: 0
     y: 0.5
-    sprite: 'standing-stones.water'
+    sprite: 'standing-stone.water'
 ]
 
 create = (game) ->
