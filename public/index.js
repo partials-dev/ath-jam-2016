@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, player, preload, render, standingStones, tryHit, update, worshippers;
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, music, player, preload, render, standingStones, tryHit, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -10,6 +10,8 @@ standingStones = require('./standing-stones');
 worshippers = require('./worshippers');
 
 player = require('./player');
+
+music = require('./music');
 
 GAME_WIDTH = $(window).width();
 
@@ -38,16 +40,13 @@ create = function() {
   var space;
   standingStones.create(game);
   worshippers.create(game);
+  music.create(game);
   met = metronome.create(game);
+  player.create(game);
   met.add(standingStones.onBeat);
-  met.add(function(beat) {
-    if (beat === 0) {
-      return game.sound.play('background');
-    }
-  });
+  met.add(music.onBeat);
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  space.onDown.add(tryHit);
-  return player.create(game);
+  return space.onDown.add(tryHit);
 };
 
 update = function() {
@@ -65,7 +64,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./metronome":2,"./phaser":3,"./player":4,"./standing-stones":5,"./worshippers":6}],2:[function(require,module,exports){
+},{"./metronome":2,"./music":3,"./phaser":4,"./player":5,"./standing-stones":6,"./worshippers":7}],2:[function(require,module,exports){
 var beat, beatDuration, create, isHit, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -148,10 +147,31 @@ module.exports = {
 
 
 },{}],3:[function(require,module,exports){
-module.exports = Phaser;
+var create, game, onBeat;
+
+game = null;
+
+create = function(g) {
+  return game = g;
+};
+
+onBeat = function(beat) {
+  if (beat === 0) {
+    return game.sound.play('background');
+  }
+};
+
+module.exports = {
+  create: create,
+  onBeat: onBeat
+};
 
 
 },{}],4:[function(require,module,exports){
+module.exports = Phaser;
+
+
+},{}],5:[function(require,module,exports){
 var SPEED, create, cursors, getPressedDirections, move, movementScheme, player,
   hasProp = {}.hasOwnProperty;
 
@@ -233,7 +253,7 @@ module.exports = {
 };
 
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var create, metronome, onBeat, onCast, params, standingStones;
 
 metronome = require('./metronome');
@@ -288,7 +308,7 @@ module.exports = {
 };
 
 
-},{"./metronome":2}],6:[function(require,module,exports){
+},{"./metronome":2}],7:[function(require,module,exports){
 var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
