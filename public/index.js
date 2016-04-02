@@ -16,10 +16,10 @@ GAME_HEIGHT = $(window).height();
 preload = function() {
   game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
   game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('standing-stone.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('standing-stone.wood', 'img/green.bmp', 1, 1);
-  game.load.spritesheet('standing-stone.water', 'img/blue.bmp', 1, 1);
-  return game.load.spritesheet('standing-stone.metal', 'img/silver.bmp', 1, 1);
+  game.load.spritesheet('standing-stone.fire', 'img/fire-stone.bmp', 8, 8);
+  game.load.spritesheet('standing-stone.wood', 'img/wood-stone.bmp', 8, 8);
+  game.load.spritesheet('standing-stone.water', 'img/water-stone.bmp', 8, 8);
+  return game.load.spritesheet('standing-stone.metal', 'img/metal-stone.bmp', 8, 8);
 };
 
 met = null;
@@ -184,7 +184,7 @@ onBeat = function(beat) {
   return standingStones.children[beat].animations.play('beat');
 };
 
-onCast = function() {
+onCast = function(beat) {
   return standingStones.children[beat].animation.play('cast');
 };
 

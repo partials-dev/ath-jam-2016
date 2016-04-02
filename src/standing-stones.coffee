@@ -31,7 +31,7 @@ create = (game) ->
 onBeat = (beat) ->
   standingStones.children[beat].animations.play 'beat'
 
-onCast = () ->
+onCast = (beat) ->
   standingStones.children[beat].animation.play 'cast'
 
 module.exports =
