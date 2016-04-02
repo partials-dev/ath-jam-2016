@@ -10,6 +10,9 @@ GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
 
 preload = ->
+  game.renderer.renderSession.roundPixels = true
+  Phaser.Canvas.setImageRenderingCrisp this.game.canvas
+
   # load worshippers
   game.load.spritesheet 'worshipper', 'img/silver.bmp', 1, 1
   game.load.spritesheet 'worshipper.elder', 'img/red.bmp', 1, 1
@@ -45,7 +48,10 @@ create = ->
   met.add music.onBeat
   space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
   space.onDown.add tryHit
-
+  
+  drumPad = game.input.keyboard.addKey midi.midi
+  drumPad.onDown.add midi.keyController
+  
 update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()

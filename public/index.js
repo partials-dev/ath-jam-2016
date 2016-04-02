@@ -20,6 +20,8 @@ GAME_WIDTH = $(window).width();
 GAME_HEIGHT = $(window).height();
 
 preload = function() {
+  game.renderer.renderSession.roundPixels = true;
+  Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
   game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
   game.load.spritesheet('standing-stone.fire', 'img/fire-stone.bmp', 8, 8);
@@ -39,7 +41,7 @@ tryHit = function() {
 };
 
 create = function() {
-  var space;
+  var drumPad, space;
   standingStones.create(game);
   worshippers.create(game);
   music.create(game);
@@ -48,7 +50,9 @@ create = function() {
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  return space.onDown.add(tryHit);
+  space.onDown.add(tryHit);
+  drumPad = game.input.keyboard.addKey(midi.midi);
+  return drumPad.onDown.add(midi.keyController);
 };
 
 update = function() {
@@ -212,22 +216,16 @@ onMIDISuccess = function(midiAccess) {
 };
 
 onMIDIMessage = function(event) {
+  var gameData;
   data = event.data;
   cmd = data[0] >> 4;
   channel = data[0] & 0xf;
   type = data[0] & 0xf0;
   note = data[1];
   velocity = data[2];
-  log('MIDI data', data);
-  switch (type) {
-    case 144:
-      noteOn(note, velocity);
-      break;
-    case 128:
-      noteOff(note, velocity);
-  }
-  log('data', data, 'cmd', cmd, 'channel', channel);
-  logger(keyData, 'key data', data);
+  gameData = {
+    note: note
+  };
 };
 
 onStateChange = function(event) {
@@ -308,11 +306,10 @@ if (navigator.requestMIDIAccess) {
   alert('No MIDI support in your browser.');
 }
 
-document.addEventListener('keydown', keyController);
-
-document.addEventListener('keyup', keyController);
-
-module.exports;
+module.exports = {
+  midi: midi,
+  keyController: keyController
+};
 
 
 },{}],4:[function(require,module,exports){

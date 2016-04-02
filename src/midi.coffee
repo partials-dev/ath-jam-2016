@@ -24,6 +24,7 @@ keyController = (e) ->
     log e.keycode
     switch e.keycode
       when 36 then log "On!"
+      
 
   else if e.type is 'keyup'
     switch e.keyCode
@@ -59,16 +60,20 @@ onMIDIMessage = (event) ->
   # pressure / tilt on
   # pressure: 176, cmd 11:
   # bend: 224, cmd: 14
-  log 'MIDI data', data
-  switch type
-    when 144
-      # noteOn message
-      noteOn note, velocity
-    when 128
-      # noteOff message
-      noteOff note, velocity
-  log 'data', data, 'cmd', cmd, 'channel', channel
-  logger keyData, 'key data', data
+  #log 'MIDI data', data
+  #switch type
+    #when 144
+      ## noteOn message
+      #noteOn note, velocity
+    #when 128
+      ## noteOff message
+      #noteOff note, velocity
+  #log 'data', data, 'cmd', cmd, 'channel', channel
+  #logger keyData, 'key data', data
+
+  gameData =
+    note: note
+
   return
 
 onStateChange = (event) ->
@@ -146,7 +151,9 @@ else
   alert 'No MIDI support in your browser.'
 
 # add event listeners
-document.addEventListener 'keydown', keyController
-document.addEventListener 'keyup', keyController
+#document.addEventListener 'keydown', keyController
+#document.addEventListener 'keyup', keyController
 
-module.exports
+module.exports =
+  midi: midi
+  keyController: keyController
