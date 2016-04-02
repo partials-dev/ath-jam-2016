@@ -1,7 +1,9 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, TEMPO, create, game, i, preload, render, standingStones, update, worshippers;
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, game, met, metronome, preload, render, standingStones, tryHit, update, worshippers;
 
 Phaser = require('./phaser');
+
+metronome = require('./metronome');
 
 standingStones = require('./standing-stones');
 
@@ -10,8 +12,6 @@ worshippers = require('./worshippers');
 GAME_WIDTH = $(window).width();
 
 GAME_HEIGHT = $(window).height();
-
-TEMPO = 100;
 
 preload = function() {
   game.load.image('standing-stone.fire', 'img/red.png');
@@ -22,15 +22,31 @@ preload = function() {
   return game.load.image('worshipper.elder', 'img/red.png');
 };
 
-create = function() {
-  return worshippers.create(game);
+met = null;
+
+tryHit = function() {
+  var distance, ms;
+  ms = metronome.msToClosestBeat();
+  distance = Math.abs(ms + 450);
+  console.log("======= " + distance);
+  if (distance < metronome.beatDuration / 2) {
+    console.log('casting');
+    return worshippers.cast();
+  }
 };
 
-i = 0;
+create = function() {
+  var space;
+  standingStones.create(game);
+  worshippers.create(game);
+  met = metronome.create(game);
+  met.add(standingStones.onBeat);
+  space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  return space.onDown.add(tryHit);
+};
 
 update = function() {
-  i += 0.002;
-  return worshippers.move(i);
+  return worshippers.move(metronome.progressThroughMeasure());
 };
 
 render = function() {};
@@ -43,12 +59,89 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./phaser":2,"./standing-stones":3,"./worshippers":4}],2:[function(require,module,exports){
-module.exports = Phaser;
+},{"./metronome":2,"./phaser":3,"./standing-stones":4,"./worshippers":5}],2:[function(require,module,exports){
+var beat, beatDuration, create, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
+
+tempo = 120;
+
+beatDuration = 60000 / tempo;
+
+lastBeatAt = null;
+
+lastMeasureStartedAt = null;
+
+beat = 0;
+
+create = function(game) {
+  var met, updateBeat;
+  met = new Phaser.Signal();
+  updateBeat = function() {
+    met.dispatch(beat);
+    lastBeatAt = performance.now();
+    if (beat === 0) {
+      lastMeasureStartedAt = performance.now();
+    }
+    if (beat === 3) {
+      return beat = 0;
+    } else {
+      return beat++;
+    }
+  };
+  game.time.events.loop(beatDuration, updateBeat);
+  return met;
+};
+
+nextBeatAt = function() {
+  return lastBeatAt + beatDuration;
+};
+
+nextMeasureStartsAt = function() {
+  return lastMeasureStartedAt + (beatDuration * 4);
+};
+
+progressThroughMeasure = function() {
+  var measureDuration, positionInMeasure;
+  measureDuration = nextMeasureStartsAt() - lastMeasureStartedAt;
+  positionInMeasure = performance.now() - lastMeasureStartedAt;
+  return positionInMeasure / measureDuration;
+};
+
+msToClosestBeat = function() {
+  var now, toLast, toNext;
+  now = performance.now();
+  toLast = now - lastBeatAt;
+  toNext = now - nextBeatAt();
+  if (toNext < toLast) {
+    return toNext;
+  } else {
+    return toLast;
+  }
+};
+
+module.exports = {
+  create: create,
+  beatDuration: beatDuration,
+  nextBeatAt: nextBeatAt,
+  lastBeatAt: function() {
+    return lastBeatAt;
+  },
+  lastMeasureStartedAt: function() {
+    return lastMeasureStartedAt;
+  },
+  nextMeasureStartsAt: nextMeasureStartsAt,
+  progressThroughMeasure: progressThroughMeasure,
+  msToClosestBeat: msToClosestBeat
+};
 
 
 },{}],3:[function(require,module,exports){
-var create, params;
+module.exports = Phaser;
+
+
+},{}],4:[function(require,module,exports){
+var create, metronome, onBeat, onCast, params, standingStones;
+
+metronome = require('./metronome');
 
 params = [
   {
@@ -70,8 +163,9 @@ params = [
   }
 ];
 
+standingStones = null;
+
 create = function(game) {
-  var standingStones;
   standingStones = game.add.group();
   params.forEach(function(p) {
     var stone;
@@ -82,13 +176,23 @@ create = function(game) {
   return standingStones;
 };
 
+onBeat = function(beat) {
+  return console.log(standingStones.children[beat]);
+};
+
+onCast = function() {
+  return console.log("casting " + element);
+};
+
 module.exports = {
-  create: create
+  create: create,
+  onBeat: onBeat,
+  onCast: onCast
 };
 
 
-},{}],4:[function(require,module,exports){
-var cast, create, i, move, params, positions, toX, whichSprite, worshippers;
+},{"./metronome":2}],5:[function(require,module,exports){
+var cast, create, embiggen, i, move, params, positions, toX, whichSprite, worshippers;
 
 whichSprite = function(i) {
   if (i === 0) {
@@ -156,10 +260,17 @@ move = function(i) {
   });
 };
 
+embiggen = true;
+
 cast = function() {
   var elder;
   elder = worshippers.children[0];
-  return elder.animations.play('cast', 30, false);
+  embiggen = !embiggen;
+  if (embiggen) {
+    return elder.scale.set(0.7);
+  } else {
+    return elder.scale.set(0.3);
+  }
 };
 
 module.exports = {

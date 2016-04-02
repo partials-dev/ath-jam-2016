@@ -1,10 +1,10 @@
 Phaser = require './phaser'
+metronome = require './metronome'
 standingStones = require './standing-stones'
 worshippers = require './worshippers'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
-TEMPO = 100
 
 preload = ->
   # load standing stones
@@ -17,14 +17,25 @@ preload = ->
   game.load.image 'worshipper', 'img/silver.png'
   game.load.image 'worshipper.elder', 'img/red.png'
 
-create = ->
-  #standingStones.create game
-  worshippers.create game
+met = null
+tryHit = ->
+  ms = metronome.msToClosestBeat()
+  distance = Math.abs ms + 450
+  console.log "======= #{distance}"
+  if distance < metronome.beatDuration / 2
+    console.log 'casting'
+    worshippers.cast()
 
-i = 0
+create = ->
+  standingStones.create game
+  worshippers.create game
+  met = metronome.create game
+  met.add(standingStones.onBeat)
+  space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
+  space.onDown.add tryHit
+
 update = ->
-  i += 0.002
-  worshippers.move i
+  worshippers.move metronome.progressThroughMeasure()
 
 render = ->
 

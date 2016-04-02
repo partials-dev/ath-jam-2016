@@ -16,6 +16,7 @@ params = [
     sprite: 'standing-stone.water'
 ]
 
+standingStones = null
 create = (game) ->
   standingStones = game.add.group()
   params.forEach (p) ->
@@ -24,5 +25,14 @@ create = (game) ->
   standingStones.scale.set 100, 100
   standingStones
 
+onBeat = (beat) ->
+  console.log standingStones.children[beat]
+
+
+onCast = () ->
+  console.log "casting " + element
+
 module.exports =
   create: create
+  onBeat: onBeat
+  onCast: onCast
