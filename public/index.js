@@ -106,7 +106,6 @@ preload = function() {
 met = null;
 
 create = function() {
-  var space;
   standingStones.create(game);
   worshippers.create(game);
   music.create(game);
@@ -115,8 +114,6 @@ create = function() {
   duplicates.create(game);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
-  space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  space.onDown.add(tryHit);
   met.add(duplicates.onBeat);
   player.onCast.add(worshippers.cast);
   return player.onCast.add(duplicates.cast);
@@ -235,7 +232,7 @@ module.exports = {
 
 
 },{}],4:[function(require,module,exports){
-var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyController, keyData, listInputs, log, logger, midi, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, type, velocity;
+var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyData, listInputs, log, logger, midi, midiMovementState, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, signal, type, velocity;
 
 log = console.log.bind(console);
 
@@ -269,21 +266,6 @@ note = void 0;
 
 velocity = void 0;
 
-keyController = function(e) {
-  if (e.type === 'keydown') {
-    log(e.keycode);
-    switch (e.keycode) {
-      case 36:
-        log("On!");
-    }
-  } else if (e.type === 'keyup') {
-    switch (e.keyCode) {
-      case 36:
-        log("Off!");
-    }
-  }
-};
-
 onMIDISuccess = function(midiAccess) {
   var input, inputs;
   midi = midiAccess;
@@ -297,17 +279,56 @@ onMIDISuccess = function(midiAccess) {
   midi.onstatechange = onStateChange;
 };
 
+signal = new Phaser.Signal();
+
+midiMovementState = {
+  up: {
+    isDown: false
+  },
+  down: {
+    isDown: false
+  },
+  left: {
+    isDown: false
+  },
+  right: {
+    isDown: false
+  }
+};
+
 onMIDIMessage = function(event) {
-  var gameData;
+  var direction, hasKey, noteToDirection;
   data = event.data;
   cmd = data[0] >> 4;
   channel = data[0] & 0xf;
   type = data[0] & 0xf0;
   note = data[1];
   velocity = data[2];
-  gameData = {
-    note: note
+  noteToDirection = {
+    49: 'up',
+    45: 'down',
+    44: 'left',
+    46: 'right'
   };
+  hasKey = function(obj, key) {
+    return Object.keys(obj).indexOf(key) !== -1;
+  };
+  switch (type) {
+    case 144:
+      signal.dispatch(note);
+      if (hasKey(noteToDirection, JSON.stringify(note))) {
+        direction = noteToDirection[note];
+        midiMovementState[direction].isDown = true;
+        return console.log(direction + midiMovementState[direction].isDown);
+      }
+      break;
+    case 128:
+      if (hasKey(noteToDirection, JSON.stringify(note))) {
+        direction = noteToDirection[note];
+        midiMovementState[direction].isDown = false;
+        return console.log(direction + midiMovementState[direction].isDown);
+      }
+  }
 };
 
 onStateChange = function(event) {
@@ -389,8 +410,8 @@ if (navigator.requestMIDIAccess) {
 }
 
 module.exports = {
-  midi: midi,
-  keyController: keyController
+  signal: signal,
+  movementState: midiMovementState
 };
 
 
@@ -420,10 +441,12 @@ module.exports = Phaser;
 
 
 },{}],7:[function(require,module,exports){
-var SPEED, cast, create, cursors, getPressedDirections, metronome, move, movementScheme, onCast, player,
+var SPEED, cast, create, cursors, getPressedDirections, metronome, midi, move, movementScheme, onCast, player,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
+
+midi = require('./midi');
 
 player = null;
 
@@ -452,7 +475,13 @@ create = function(game) {
   player.animations.add('right', [3, 4, 5], 10, true);
   cursors = game.input.keyboard.createCursorKeys();
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  return space.onDown.add(cast);
+  space.onDown.add(cast);
+  return midi.signal.add(function(pitch) {
+    switch (pitch) {
+      case 48:
+        return cast();
+    }
+  });
 };
 
 movementScheme = {
@@ -475,7 +504,7 @@ movementScheme = {
 };
 
 getPressedDirections = function(keys) {
-  var direction, key, pressed;
+  var direction, key, midiPressed, pressed;
   pressed = (function() {
     var results;
     results = [];
@@ -488,7 +517,20 @@ getPressedDirections = function(keys) {
     }
     return results;
   })();
-  return pressed;
+  midiPressed = (function() {
+    var ref, results;
+    ref = midi.movementState;
+    results = [];
+    for (direction in ref) {
+      if (!hasProp.call(ref, direction)) continue;
+      key = ref[direction];
+      if (key.isDown) {
+        results.push(direction);
+      }
+    }
+    return results;
+  })();
+  return pressed.concat(midiPressed);
 };
 
 move = function() {
@@ -519,7 +561,7 @@ module.exports = {
 };
 
 
-},{"./metronome":3}],8:[function(require,module,exports){
+},{"./metronome":3,"./midi":4}],8:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');

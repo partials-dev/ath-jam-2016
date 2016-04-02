@@ -42,8 +42,6 @@ create = ->
   # wire up event listeners
   met.add standingStones.onBeat
   met.add music.onBeat
-  space = game.input.keyboard.addKey Phaser.Keyboard.SPACEBAR
-  space.onDown.add tryHit
   
   met.add duplicates.onBeat
   player.onCast.add worshippers.cast

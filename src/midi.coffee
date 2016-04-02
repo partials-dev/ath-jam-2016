@@ -18,18 +18,6 @@ type = undefined
 note = undefined
 velocity = undefined
 
-# Drumpad Control
-keyController = (e) ->
-  if e.type is 'keydown'
-    log e.keycode
-    switch e.keycode
-      when 36 then log "On!"
-      
-
-  else if e.type is 'keyup'
-    switch e.keyCode
-      when 36 then log "Off!"
-  return
 
 # midi functions
 onMIDISuccess = (midiAccess) ->
@@ -47,6 +35,19 @@ onMIDISuccess = (midiAccess) ->
   #showMIDIPorts midi
   return
 
+
+signal = new Phaser.Signal()
+
+midiMovementState =
+  up:
+    isDown: false
+  down:
+    isDown: false
+  left:
+    isDown: false
+  right:
+    isDown: false
+
 onMIDIMessage = (event) ->
   data = event.data
   cmd = data[0] >> 4
@@ -60,21 +61,34 @@ onMIDIMessage = (event) ->
   # pressure / tilt on
   # pressure: 176, cmd 11:
   # bend: 224, cmd: 14
-  #log 'MIDI data', data
-  #switch type
-    #when 144
-      ## noteOn message
-      #noteOn note, velocity
-    #when 128
-      ## noteOff message
-      #noteOff note, velocity
+  #log note
   #log 'data', data, 'cmd', cmd, 'channel', channel
   #logger keyData, 'key data', data
 
-  gameData =
-    note: note
+  noteToDirection =
+    49: 'up'
+    45: 'down'
+    44: 'left'
+    46: 'right'
 
-  return
+  hasKey = (obj, key) ->
+    Object.keys(obj).indexOf(key) isnt -1
+    
+  switch type
+    when 144 # Note On
+      signal.dispatch note
+      if hasKey(noteToDirection, JSON.stringify note)
+        direction = noteToDirection[note]
+        midiMovementState[direction].isDown = true
+        console.log direction + midiMovementState[direction].isDown
+
+
+    when 128 # Note Off
+      if hasKey(noteToDirection, JSON.stringify note)
+        direction = noteToDirection[note]
+        midiMovementState[direction].isDown = false
+        console.log direction + midiMovementState[direction].isDown
+
 
 onStateChange = (event) ->
   `var type`
@@ -155,5 +169,5 @@ else
 #document.addEventListener 'keyup', keyController
 
 module.exports =
-  midi: midi
-  keyController: keyController
+  signal: signal
+  movementState: midiMovementState
