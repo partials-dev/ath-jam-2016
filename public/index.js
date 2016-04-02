@@ -19,7 +19,8 @@ preload = function() {
   game.load.spritesheet('standing-stone.fire', 'img/fire-stone.bmp', 8, 8);
   game.load.spritesheet('standing-stone.wood', 'img/wood-stone.bmp', 8, 8);
   game.load.spritesheet('standing-stone.water', 'img/water-stone.bmp', 8, 8);
-  return game.load.spritesheet('standing-stone.metal', 'img/metal-stone.bmp', 8, 8);
+  game.load.spritesheet('standing-stone.metal', 'img/metal-stone.bmp', 8, 8);
+  return game.load.audio('background', 'sound/test.mp3');
 };
 
 met = null;
@@ -36,6 +37,11 @@ create = function() {
   worshippers.create(game);
   met = metronome.create(game);
   met.add(standingStones.onBeat);
+  met.add(function(beat) {
+    if (beat === 0) {
+      return game.sound.play('background');
+    }
+  });
   space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   return space.onDown.add(tryHit);
 };
@@ -57,7 +63,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 },{"./metronome":2,"./phaser":3,"./standing-stones":4,"./worshippers":5}],2:[function(require,module,exports){
 var beat, beatDuration, create, isHit, lastBeatAt, lastMeasureStartedAt, msToClosestBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
-tempo = 50;
+tempo = 100;
 
 beatDuration = 60000 / tempo;
 
@@ -116,7 +122,7 @@ msToClosestBeat = function(offset) {
 isHit = function() {
   var ms;
   ms = msToClosestBeat(0);
-  return Math.abs(ms) < beatDuration / 8;
+  return Math.abs(ms) < beatDuration / 6;
 };
 
 module.exports = {

@@ -1,4 +1,4 @@
-tempo = 50 # bpm
+tempo = 100 # bpm
 beatDuration = 60000 / tempo
 
 lastBeatAt = null
@@ -45,7 +45,7 @@ msToClosestBeat = (offset) ->
 
 isHit = ->
   ms = msToClosestBeat(0)
-  Math.abs(ms) < beatDuration / 8
+  Math.abs(ms) < beatDuration / 6
 
 module.exports =
   create: create
