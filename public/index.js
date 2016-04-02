@@ -31,8 +31,7 @@ tryHit = function() {
   console.log("======= " + distance);
   if (distance < metronome.beatDuration / 2) {
     console.log('casting');
-    worshippers.cast();
-    return standingStones.onCast();
+    return worshippers.cast();
   }
 };
 

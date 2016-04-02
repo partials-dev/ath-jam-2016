@@ -25,7 +25,7 @@ tryHit = ->
   if distance < metronome.beatDuration / 2
     console.log 'casting'
     worshippers.cast()
-    standingStones.onCast()
+    #standingStones.onCast()
 
 create = ->
   standingStones.create game
