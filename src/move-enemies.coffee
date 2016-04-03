@@ -32,6 +32,8 @@ create = (g) ->
   enemy = game.add.sprite(0, 0, 'enemy')
   enemy.scale.set 50, 50
   enemy.anchor.set 0.5
+  enemy.damage = 2
+  enemy.speed = 10
   plot()
 
 plot = ->
@@ -53,13 +55,16 @@ plot = ->
     bmd.rect lane.x[p] - 3, lane.y[p] - 3, 6, 6, "rgba(255, 0, 0, #{pathIsVisible})"
     p++
 
+enemyAlive = true
 update = ->
-  enemy.x = path[pi].x
-  enemy.y = path[pi].y
-  pi++
-  if pi >= path.length
+  if pi < path.length
+    enemy.x = path[pi].x
+    enemy.y = path[pi].y
+    pi += enemy.speed
+  else if enemyAlive
+    health -= enemy.damage
+    enemyAlive = false
     enemy.kill()
-    health -= 1
     console.log health
 
 module.exports =

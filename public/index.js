@@ -470,7 +470,7 @@ module.exports = {
 
 
 },{}],6:[function(require,module,exports){
-var base, bmd, create, enemy, game, health, lane, load, path, pathIsVisible, pi, plot, scaleLane, spawn, update;
+var base, bmd, create, enemy, enemyAlive, game, health, lane, load, path, pathIsVisible, pi, plot, scaleLane, spawn, update;
 
 bmd = null;
 
@@ -537,6 +537,8 @@ create = function(g) {
   enemy = game.add.sprite(0, 0, 'enemy');
   enemy.scale.set(50, 50);
   enemy.anchor.set(0.5);
+  enemy.damage = 2;
+  enemy.speed = 10;
   return plot();
 };
 
@@ -566,13 +568,17 @@ plot = function() {
   return results;
 };
 
+enemyAlive = true;
+
 update = function() {
-  enemy.x = path[pi].x;
-  enemy.y = path[pi].y;
-  pi++;
-  if (pi >= path.length) {
+  if (pi < path.length) {
+    enemy.x = path[pi].x;
+    enemy.y = path[pi].y;
+    return pi += enemy.speed;
+  } else if (enemyAlive) {
+    health -= enemy.damage;
+    enemyAlive = false;
     enemy.kill();
-    health -= 1;
     return console.log(health);
   }
 };
