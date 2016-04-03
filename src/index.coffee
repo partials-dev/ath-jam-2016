@@ -6,6 +6,7 @@ player = require './player'
 #midi = require './midi'
 music = require './music'
 duplicates = require './duplicates'
+spawnPoints = require './spawn-points'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
@@ -14,20 +15,12 @@ preload = ->
   game.renderer.renderSession.roundPixels = true
   Phaser.Canvas.setImageRenderingCrisp this.game.canvas
 
-  # load worshippers
-  game.load.spritesheet 'worshipper', 'img/silver.bmp', 1, 1
-  game.load.spritesheet 'worshipper.elder', 'img/red.bmp', 1, 1
-
-  # load standing stones
+  worshippers.load game
+  player.load game
   standingStones.load game
-  # load player
-  game.load.spritesheet 'player', 'img/green.bmp', 1, 1
-
-  # load duplicates
   duplicates.load game
-
-  # load audio
   music.load game
+  spawnPoints.load game
 
 met = null
 
@@ -39,6 +32,7 @@ create = ->
   met = metronome.create game
   player.create game
   duplicates.create game
+  spawnPoints.create game
 
   # wire up event listeners
   met.add standingStones.onBeat

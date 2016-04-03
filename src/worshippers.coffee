@@ -12,6 +12,11 @@ toX = (i, period = 4) ->
 params = (x: Math.sin(toX i), y: Math.cos(toX i), sprite: whichSprite(i) for i in [0..3])
 
 worshippers = null
+
+load = (game) ->
+  game.load.spritesheet 'worshipper', 'img/silver.bmp', 1, 1
+  game.load.spritesheet 'worshipper.elder', 'img/red.bmp', 1, 1
+
 create = (game) ->
   worshippers = game.add.group()
   params.forEach (p) ->
@@ -39,6 +44,7 @@ cast = (closestBeat, msToBeat) ->
   elder.animations.play 'cast', false
 
 module.exports =
+  load: load
   create: create
   move: move
   cast: cast

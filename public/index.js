@@ -74,8 +74,8 @@ module.exports = {
 };
 
 
-},{"./standing-stones":9}],2:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, music, player, preload, render, standingStones, update, worshippers;
+},{"./standing-stones":10}],2:[function(require,module,exports){
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -91,6 +91,8 @@ music = require('./music');
 
 duplicates = require('./duplicates');
 
+spawnPoints = require('./spawn-points');
+
 GAME_WIDTH = $(window).width();
 
 GAME_HEIGHT = $(window).height();
@@ -98,12 +100,12 @@ GAME_HEIGHT = $(window).height();
 preload = function() {
   game.renderer.renderSession.roundPixels = true;
   Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
-  game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
-  game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
+  worshippers.load(game);
+  player.load(game);
   standingStones.load(game);
-  game.load.spritesheet('player', 'img/green.bmp', 1, 1);
   duplicates.load(game);
-  return music.load(game);
+  music.load(game);
+  return spawnPoints.load(game);
 };
 
 met = null;
@@ -115,6 +117,7 @@ create = function() {
   met = metronome.create(game);
   player.create(game);
   duplicates.create(game);
+  spawnPoints.create(game);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
   met.add(duplicates.onBeat);
@@ -138,7 +141,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":4,"./music":6,"./phaser":7,"./player":8,"./standing-stones":9,"./worshippers":10}],3:[function(require,module,exports){
+},{"./duplicates":1,"./metronome":4,"./music":6,"./phaser":7,"./player":8,"./spawn-points":9,"./standing-stones":10,"./worshippers":11}],3:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -539,7 +542,7 @@ module.exports = Phaser;
 
 
 },{}],8:[function(require,module,exports){
-var SPEED, cast, create, cursors, duplicates, getPressedDirections, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
+var SPEED, cast, create, cursors, duplicates, getPressedDirections, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
@@ -576,6 +579,10 @@ cast = function() {
   } else {
     return music.cast.fail();
   }
+};
+
+load = function(game) {
+  return game.load.spritesheet('player', 'img/green.bmp', 1, 1);
 };
 
 create = function(game) {
@@ -684,6 +691,7 @@ summon = function(element) {
 };
 
 module.exports = {
+  load: load,
   create: create,
   move: move,
   sprite: function() {
@@ -695,6 +703,122 @@ module.exports = {
 
 
 },{"./duplicates":1,"./mana":3,"./metronome":4,"./midi":5,"./music":6}],9:[function(require,module,exports){
+var SPAWN_DELAY, create, enemies, game, load, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints,
+  hasProp = {}.hasOwnProperty;
+
+spawnPoints = [
+  {
+    location: {
+      x: 200,
+      y: 200
+    },
+    waves: [
+      {
+        time: 1000 * 10,
+        enemies: {
+          fire: 5,
+          wind: 3
+        }
+      }, {
+        time: 1000 * 20,
+        enemies: {
+          fire: 5,
+          wind: 3
+        }
+      }
+    ]
+  }, {
+    location: {
+      x: 100,
+      y: 100
+    },
+    waves: [
+      {
+        time: 1000 * 10,
+        enemies: {
+          fire: 5,
+          wind: 3
+        }
+      }, {
+        time: 1000 * 20,
+        enemies: {
+          fire: 5,
+          wind: 3
+        }
+      }
+    ]
+  }
+];
+
+game = null;
+
+enemies = null;
+
+SPAWN_DELAY = 200;
+
+load = function(game) {
+  game.load.spritesheet('enemy.fire', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('enemy.water', 'img/blue.bmp', 1, 1);
+  game.load.spritesheet('enemy.wind', 'img/silver.bmp', 1, 1);
+  return game.load.spritesheet('enemy.earth', 'img/green.bmp', 1, 1);
+};
+
+spawnGroup = function(type, position, number) {
+  var results, spawn;
+  spawn = function() {
+    var enemy;
+    enemy = enemies.create(position.x, position.y, "enemy." + type);
+    return enemy.scale.set(100, 100);
+  };
+  results = [];
+  while (number >= 0) {
+    setTimeout(spawn, number * SPAWN_DELAY);
+    results.push(number -= 1);
+  }
+  return results;
+};
+
+spawnGroups = function(position, wave) {
+  var number, ref, results, type;
+  ref = wave.enemies;
+  results = [];
+  for (type in ref) {
+    if (!hasProp.call(ref, type)) continue;
+    number = ref[type];
+    results.push(spawnGroup(type, position, number));
+  }
+  return results;
+};
+
+scheduleSpawnPoint = function(spawnPoint) {
+  return spawnPoint.waves.forEach(function(wave) {
+    var c;
+    c = function() {
+      return spawnGroups(spawnPoint.location, wave);
+    };
+    return setTimeout(c, wave.time);
+  });
+};
+
+scheduleSpawnPoints = function() {
+  return spawnPoints.forEach(function(spawnPoint) {
+    return scheduleSpawnPoint(spawnPoint);
+  });
+};
+
+create = function(g) {
+  game = g;
+  enemies = game.add.group();
+  return scheduleSpawnPoints();
+};
+
+module.exports = {
+  load: load,
+  create: create
+};
+
+
+},{}],10:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -765,8 +889,8 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],10:[function(require,module,exports){
-var cast, create, embiggen, i, metronome, move, params, toX, whichSprite, worshippers;
+},{"./metronome":4}],11:[function(require,module,exports){
+var cast, create, embiggen, i, load, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
 
@@ -799,6 +923,11 @@ params = (function() {
 })();
 
 worshippers = null;
+
+load = function(game) {
+  game.load.spritesheet('worshipper', 'img/silver.bmp', 1, 1);
+  return game.load.spritesheet('worshipper.elder', 'img/red.bmp', 1, 1);
+};
 
 create = function(game) {
   worshippers = game.add.group();
@@ -833,6 +962,7 @@ cast = function(closestBeat, msToBeat) {
 };
 
 module.exports = {
+  load: load,
   create: create,
   move: move,
   cast: cast

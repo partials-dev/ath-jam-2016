@@ -22,6 +22,9 @@ cast = ->
   else
     music.cast.fail()
 
+load = (game) ->
+  game.load.spritesheet 'player', 'img/green.bmp', 1, 1
+
 create = (game) ->
   # sprite
   player = game.add.sprite 200, 200, 'player'
@@ -101,6 +104,7 @@ summon = (element) ->
     music.duplicateSummoned element
 
 module.exports =
+  load: load
   create: create
   move: move
   sprite: -> player
