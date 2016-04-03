@@ -1,3 +1,5 @@
+enemy = require './enemy'
+
 spawnPoints = [
     location: x: 200, y: 200
     waves: [
@@ -31,25 +33,21 @@ enemies = null
 SPAWN_DELAY = 200
 
 load = (game) ->
-  game.load.spritesheet 'enemy.fire', 'img/red.bmp', 1, 1
-  game.load.spritesheet 'enemy.water', 'img/blue.bmp', 1, 1
-  game.load.spritesheet 'enemy.wind', 'img/silver.bmp', 1, 1
-  game.load.spritesheet 'enemy.earth', 'img/green.bmp', 1, 1
+  enemy.load game
 
-spawnGroup = (type, position, number) ->
-  spawn = ->
-    enemy = enemies.create position.x, position.y, "enemy.#{type}"
-    enemy.scale.set 100, 100
+spawnGroup = (type, position, number, path) ->
+  s = -> enemy.spawn position, type, path
   while number >= 0
-    setTimeout spawn, number * SPAWN_DELAY
+    setTimeout s, number * SPAWN_DELAY
     number -= 1
 
-spawnGroups = (position, wave) ->
-  spawnGroup type, position, number for own type, number of wave.enemies
+spawnGroups = (position, wave, path) ->
+  spawnGroup type, position, number, path for own type, number of wave.enemies
 
 scheduleSpawnPoint = (spawnPoint) ->
+  #path = ???
   spawnPoint.waves.forEach (wave) ->
-    c = -> spawnGroups spawnPoint.location, wave
+    c = -> spawnGroups spawnPoint.location, wave, path
     setTimeout c, wave.time
 
 scheduleSpawnPoints = ->
@@ -58,8 +56,11 @@ scheduleSpawnPoints = ->
 
 create = (g) ->
   game = g
-  enemies = game.add.group()
+  enemy.create game
   scheduleSpawnPoints()
+
+update = ->
+
 
 module.exports =
   load: load
