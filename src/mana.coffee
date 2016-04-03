@@ -5,7 +5,7 @@ manaBar = null
 
 create = (game) ->
   # mana bar
-  manaBar = game.add.graphics 50, 50
+  manaBar = game.add.graphics 50, 100
   updateBar 1
 
 updateBar = (proportion) ->

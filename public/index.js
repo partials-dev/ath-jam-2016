@@ -74,7 +74,7 @@ module.exports = {
 };
 
 
-},{"./standing-stones":12}],2:[function(require,module,exports){
+},{"./standing-stones":13}],2:[function(require,module,exports){
 var create, createUpdate, enemies, game, load, spawn, updateEnemies;
 
 game = null;
@@ -144,6 +144,48 @@ module.exports = {
 
 
 },{}],3:[function(require,module,exports){
+var STARTING_BAR_WIDTH, STARTING_health, create, currentHealth, healthBar, spend, updateBar;
+
+STARTING_BAR_WIDTH = 50;
+
+STARTING_health = 100;
+
+currentHealth = STARTING_health;
+
+healthBar = null;
+
+create = function(game) {
+  healthBar = game.add.graphics(50, 50);
+  return updateBar(1);
+};
+
+updateBar = function(proportion) {
+  healthBar.clear();
+  healthBar.lineStyle(10, 0xff0000, 1);
+  healthBar.moveTo(0, 0);
+  return healthBar.lineTo(STARTING_BAR_WIDTH * proportion, 0);
+};
+
+spend = function(amount) {
+  var currenthealth, proportion;
+  currentHealth -= amount;
+  if (currentHealth < 0) {
+    currenthealth = 0;
+  }
+  proportion = currentHealth / STARTING_HEALTH;
+  return updateBar(proportion);
+};
+
+module.exports = {
+  create: create,
+  current: function() {
+    return currentHealth;
+  },
+  spend: spend
+};
+
+
+},{}],4:[function(require,module,exports){
 var GAME_HEIGHT, GAME_WIDTH, Phaser, base, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
@@ -220,7 +262,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":5,"./move-enemies":7,"./music":8,"./phaser":9,"./player":10,"./spawn-points":11,"./standing-stones":12,"./worshippers":13}],4:[function(require,module,exports){
+},{"./duplicates":1,"./metronome":6,"./move-enemies":8,"./music":9,"./phaser":10,"./player":11,"./spawn-points":12,"./standing-stones":13,"./worshippers":14}],5:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -232,7 +274,7 @@ currentMana = STARTING_MANA;
 manaBar = null;
 
 create = function(game) {
-  manaBar = game.add.graphics(50, 50);
+  manaBar = game.add.graphics(50, 100);
   return updateBar(1);
 };
 
@@ -262,7 +304,7 @@ module.exports = {
 };
 
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var beat, beatDuration, closestBeat, create, isHit, lastBeatAt, lastMeasureStartedAt, nextBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -359,7 +401,7 @@ module.exports = {
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyData, listInputs, log, logger, midi, midiMovementState, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, signal, type, velocity;
 
 log = console.log.bind(console);
@@ -537,7 +579,7 @@ module.exports = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var create, createUpdate, game, load, path1, path2, pathIsVisible, plot, scaleLane;
 
 game = null;
@@ -652,7 +694,7 @@ module.exports = {
 };
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var background, cast, castFail, castSucceed, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
   hasProp = {}.hasOwnProperty;
 
@@ -725,17 +767,19 @@ module.exports = {
 };
 
 
-},{"./metronome":5}],9:[function(require,module,exports){
+},{"./metronome":6}],10:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],10:[function(require,module,exports){
-var SPEED, cast, create, cursors, duplicates, getPressedDirections, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
+},{}],11:[function(require,module,exports){
+var SPEED, cast, create, cursors, duplicates, getPressedDirections, health, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
 
 duplicates = require('./duplicates');
+
+health = require('./health');
 
 mana = require('./mana');
 
@@ -777,6 +821,7 @@ create = function(game) {
   var space;
   player = game.add.sprite(200, 200, 'player');
   player.scale.set(50, 50);
+  health.create(game);
   mana.create(game);
   game.physics.arcade.enable(player);
   player.body.bounce.y = 0.2;
@@ -890,7 +935,7 @@ module.exports = {
 };
 
 
-},{"./duplicates":1,"./mana":4,"./metronome":5,"./midi":6,"./music":8}],11:[function(require,module,exports){
+},{"./duplicates":1,"./health":3,"./mana":5,"./metronome":6,"./midi":7,"./music":9}],12:[function(require,module,exports){
 var SPAWN_DELAY, create, enemies, enemy, game, load, moveEnemies, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints, update,
   hasProp = {}.hasOwnProperty;
 
@@ -1016,7 +1061,7 @@ module.exports = {
 };
 
 
-},{"./enemy":2,"./move-enemies":7}],12:[function(require,module,exports){
+},{"./enemy":2,"./move-enemies":8}],13:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -1087,7 +1132,7 @@ module.exports = {
 };
 
 
-},{"./metronome":5}],13:[function(require,module,exports){
+},{"./metronome":6}],14:[function(require,module,exports){
 var cast, create, embiggen, i, load, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
@@ -1167,4 +1212,4 @@ module.exports = {
 };
 
 
-},{"./metronome":5}]},{},[3]);
+},{"./metronome":6}]},{},[4]);
