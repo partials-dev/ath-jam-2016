@@ -1,7 +1,7 @@
 enemy = require './enemy'
 
 spawnPoints = [
-    location: x: 200, y: 200
+    location: x: 0.2, y: 0.0
     waves: [
         time: 1000 * 10
         enemies:
@@ -14,7 +14,7 @@ spawnPoints = [
           wind: 3
     ]
   ,
-    location: x: 100, y: 100
+    location: x: 1.0, y: 0.3
     waves: [
         time: 1000 * 10
         enemies:
@@ -65,3 +65,5 @@ update = ->
 module.exports =
   load: load
   create: create
+  s1: spawnPoints[0].location
+  s2: spawnPoints[1].location

@@ -129,7 +129,7 @@ module.exports = {
 
 
 },{}],3:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
+var GAME_HEIGHT, GAME_WIDTH, Phaser, base, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -167,6 +167,11 @@ preload = function() {
 
 met = null;
 
+base = {
+  x: 0.3,
+  y: 1
+};
+
 create = function() {
   standingStones.create(game);
   worshippers.create(game);
@@ -175,7 +180,7 @@ create = function() {
   player.create(game);
   duplicates.create(game);
   spawnPoints.create(game);
-  moveEnemies.create(game);
+  moveEnemies.create(game, base, spawnPoints.s1, spawnPoints.s2);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
   met.add(duplicates.onBeat);
@@ -186,8 +191,7 @@ create = function() {
 
 update = function() {
   worshippers.move(metronome.progressThroughMeasure());
-  player.move();
-  return moveEnemies.update();
+  return player.move();
 };
 
 render = function() {};
@@ -524,44 +528,15 @@ module.exports = {
 
 
 },{}],7:[function(require,module,exports){
-var base, bmd, create, createUpdate, enemy, game, getPath1, getPath2, health, load, path, path1, path2, pathIsVisible, plot, scaleLane, spawn1, spawn2;
-
-bmd = null;
-
-enemy = null;
-
-path = [];
+var create, createUpdate, game, getPath1, getPath2, load, path1, path2, pathIsVisible, plot, scaleLane;
 
 game = null;
 
-health = 10;
-
 pathIsVisible = 1;
 
-base = {
-  x: 0.3,
-  y: 1
-};
+path1 = null;
 
-spawn1 = {
-  x: 0.2,
-  y: 0.0
-};
-
-spawn2 = {
-  x: 1.0,
-  y: 0.3
-};
-
-path1 = {
-  x: [spawn1.x, 0.2, 0.3, 0.3, base.x],
-  y: [spawn1.y, 0.3, 0.4, 0.7, base.y]
-};
-
-path2 = {
-  x: [spawn2.x, 0.3, base.x],
-  y: [spawn2.y, 0.3, base.y]
-};
+path2 = null;
 
 getPath1 = function(spawnPosition) {
   return path1;
@@ -571,7 +546,7 @@ getPath2 = function(spawnPosition) {
   return path2;
 };
 
-scaleLane = function(l) {
+scaleLane = function(lane) {
   var n;
   lane.x = (function() {
     var j, len, ref, results;
@@ -593,30 +568,34 @@ scaleLane = function(l) {
     }
     return results;
   })();
-  return l;
+  return lane;
 };
 
 load = function(game) {
   return game.load.spritesheet('enemy', 'img/blue.bmp', 1, 1);
 };
 
-create = function(g, s1, s2) {
+create = function(g, base, s1, s2) {
+  var bmd1, bmd2;
   game = g;
-  bmd = game.add.bitmapData(game.width, game.height);
-  spawn1 = s1;
-  spawn2 = s2;
-  bmd.addToWorld();
-  enemy = game.add.sprite(0, 0, 'enemy');
-  enemy.scale.set(50, 50);
-  enemy.anchor.set(0.5);
-  enemy.damage = 2;
-  enemy.speed = 10;
-  plot(path1);
-  return plot(path2);
+  bmd1 = game.add.bitmapData(game.width, game.height);
+  bmd2 = game.add.bitmapData(game.width, game.height);
+  bmd1.addToWorld();
+  bmd2.addToWorld();
+  path1 = {
+    x: [s1.x, 0.2, 0.3, 0.3, base.x],
+    y: [s1.y, 0.3, 0.4, 0.7, base.y]
+  };
+  path2 = {
+    x: [s2.x, 0.3, base.x],
+    y: [s2.y, 0.3, base.y]
+  };
+  plot(path1, bmd1);
+  return plot(path2, bmd2);
 };
 
-plot = function(lane) {
-  var i, p, px, py, x;
+plot = function(lane, bmd) {
+  var i, p, path, px, py, x;
   bmd.clear();
   path = [];
   x = 1 / game.width;
@@ -660,7 +639,7 @@ createUpdate = function(enemy, path) {
 };
 
 module.exports = {
-  update: update,
+  createUpdate: createUpdate,
   load: load,
   create: create
 };
@@ -913,8 +892,8 @@ enemy = require('./enemy');
 spawnPoints = [
   {
     location: {
-      x: 200,
-      y: 200
+      x: 0.2,
+      y: 0.0
     },
     waves: [
       {
@@ -933,8 +912,8 @@ spawnPoints = [
     ]
   }, {
     location: {
-      x: 100,
-      y: 100
+      x: 1.0,
+      y: 0.3
     },
     waves: [
       {
@@ -1015,7 +994,9 @@ update = function() {};
 
 module.exports = {
   load: load,
-  create: create
+  create: create,
+  s1: spawnPoints[0].location,
+  s2: spawnPoints[1].location
 };
 
 

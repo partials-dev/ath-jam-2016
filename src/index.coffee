@@ -26,6 +26,10 @@ preload = ->
 
 met = null
 
+base =
+  x: 0.3
+  y: 1
+
 create = ->
   # create modules
   standingStones.create game
@@ -35,7 +39,7 @@ create = ->
   player.create game
   duplicates.create game
   spawnPoints.create game
-  moveEnemies.create game
+  moveEnemies.create game, base, spawnPoints.s1, spawnPoints.s2
 
   # wire up event listeners
   met.add standingStones.onBeat
@@ -49,7 +53,7 @@ create = ->
 update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()
-  moveEnemies.update()
+  #moveEnemies.update()
 
 render = ->
 

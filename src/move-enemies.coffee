@@ -1,28 +1,10 @@
-bmd = null
-enemy = null
-path = []
 game = null
-health = 10
 
 # enemy lane params
 pathIsVisible = 1
-base =
-  x: 0.3
-  y: 1
-spawn1 =
-  x: 0.2
-  y: 0.0
-spawn2 =
-  x: 1.0
-  y: 0.3
 
-path1 =
-    x: [spawn1.x, 0.2, 0.3, 0.3, base.x]
-    y: [spawn1.y, 0.3, 0.4, 0.7, base.y]
-
-path2 =
-  x: [spawn2.x, 0.3, base.x]
-  y: [spawn2.y, 0.3, base.y]
+path1 = null
+path2 = null
 
 getPath1 = (spawnPosition) ->
   path1
@@ -30,29 +12,30 @@ getPath1 = (spawnPosition) ->
 getPath2 = (spawnPosition) ->
   path2
 
-scaleLane = (l) ->
+scaleLane = (lane) ->
   lane.x = (n * game.width for n in lane.x)
   lane.y = (n * game.height for n in lane.y)
-  return l
+  return lane
 
 load = (game) ->
   game.load.spritesheet 'enemy', 'img/blue.bmp', 1, 1
 
-create = (g, s1, s2) ->
+create = (g, base, s1, s2) ->
   game = g
-  bmd = game.add.bitmapData(game.width, game.height)
-  spawn1 = s1
-  spawn2 = s2
-  bmd.addToWorld()
-  enemy = game.add.sprite(0, 0, 'enemy')
-  enemy.scale.set 50, 50
-  enemy.anchor.set 0.5
-  enemy.damage = 2
-  enemy.speed = 10
-  plot path1
-  plot path2
+  bmd1 = game.add.bitmapData(game.width, game.height)
+  bmd2 = game.add.bitmapData(game.width, game.height)
+  bmd1.addToWorld()
+  bmd2.addToWorld()
+  path1 =
+    x: [s1.x, 0.2, 0.3, 0.3, base.x]
+    y: [s1.y, 0.3, 0.4, 0.7, base.y]
+  path2 =
+    x: [s2.x, 0.3, base.x]
+    y: [s2.y, 0.3, base.y]
+  plot path1, bmd1
+  plot path2, bmd2
 
-plot = (lane)->
+plot = (lane, bmd)->
   bmd.clear()
   path = []
   x = 1 / game.width
@@ -89,6 +72,6 @@ createUpdate = (enemy, path) ->
       enemy.damage
 
 module.exports =
-  update: update
+  createUpdate: createUpdate
   load: load
   create: create
