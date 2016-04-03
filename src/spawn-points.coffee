@@ -7,13 +7,11 @@ spawnPoints = [
     waves: [
         time: 0 #1000 * 10
         enemies:
-          fire: 5
-          wind: 3
+          minion: 5
       ,
         time: 1000 * 20
         enemies:
-          fire: 5
-          wind: 3
+          minion: 3
     ]
   ,
     location: x: 1.0, y: 0.33
@@ -21,13 +19,12 @@ spawnPoints = [
     waves: [
         time: 1000 * 10
         enemies:
-          fire: 5
-          wind: 3
+          minion: 5
       ,
         time: 1000 * 20
         enemies:
-          fire: 5
-          wind: 3
+          minion: 10
+          boss: 1
     ]
 ]
 

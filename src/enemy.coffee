@@ -1,11 +1,21 @@
 game = null
 enemies = null
 
+healthByType =
+  minion: 5
+  boss: 50
+
+damageByElement =
+  fire: 5
+  wind: 1
+  water: 0
+  earth: 3
+
+FREEZE_DURATION = 5000
+
 load = (game) ->
-  game.load.spritesheet 'enemy.fire', 'img/red.bmp', 1, 1
-  game.load.spritesheet 'enemy.water', 'img/blue.bmp', 1, 1
-  game.load.spritesheet 'enemy.wind', 'img/silver.bmp', 1, 1
-  game.load.spritesheet 'enemy.earth', 'img/green.bmp', 1, 1
+  game.load.spritesheet 'enemy.minion', 'img/red.bmp', 1, 1
+  game.load.spritesheet 'enemy.boss', 'img/blue.bmp', 1, 1
 
 create = (g) ->
   game = g
@@ -17,6 +27,15 @@ spawn = (type, path) ->
   enemy.scale.set 10, 10
   enemy.update = createUpdate enemy, path
   enemy.speed = 1
+  enemy.health = healthByType[type]
+  enemy.unfreezeTime = 0
+  enemy.hitBy = (element) ->
+    console.log "hit by #{element}"
+    enemy.health -= damageByElement[element]
+    console.log "health: #{enemy.health}"
+    if element is 'water'
+      enemy.unfreezeTime = game.time.time + FREEZE_DURATION
+    enemy.kill() if enemy.health <= 0
   enemy
 
 updateEnemies = ->
@@ -29,7 +48,11 @@ createUpdate = (enemy, path) ->
   i = 0
   update = ->
     i++
-    i = i % 3
+    unfrozen = game.time.time > enemy.unfreezeTime
+    if unfrozen
+      i = i % 3
+    else
+      i = i % 6
     return unless i is 0
     if pi < path.length
       enemy.x = path[pi].x

@@ -64,12 +64,13 @@ spawn = (element, position) ->
   dup = duplicates.create position.x, position.y, "duplicate.#{element}", 1
   dup.scale.set 30, 30
   dup.anchor.set 0.5
+  dup.nextFire = 0
 
   dup.attackRange = attackRange
   attackRange.duplicate = dup
 
   dup.attack = (enemy) ->
-    attack[element](enemy)
+    attack.attack dup, enemy, element
 
 update = ->
   overlapHandler = (enemy, attackRange) ->
