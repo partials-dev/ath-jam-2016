@@ -9,7 +9,7 @@ load = (game) ->
 
 create = (g) ->
   game = g
-  enemies = game.add.group()
+  enemies = game.add.physicsGroup Phaser.Physics.ARCADE
 
 spawn = (type, path) ->
   key = "enemy.#{type}"
@@ -18,8 +18,6 @@ spawn = (type, path) ->
   enemy.update = createUpdate enemy, path
   enemy.speed = 1
   enemy
-
-window.spawn = spawn
 
 updateEnemies = ->
   enemies.forEach (enemy) ->
@@ -47,4 +45,5 @@ module.exports =
   load: load
   create: create
   spawn: spawn
+  enemies: -> enemies
   updateEnemies: updateEnemies

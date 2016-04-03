@@ -31,6 +31,7 @@ base =
   y: 1
 
 create = ->
+  game.physics.startSystem Phaser.Physics.ARCADE
   # create modules
   standingStones.create game
   worshippers.create game
@@ -54,6 +55,7 @@ update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()
   spawnPoints.update()
+  duplicates.update()
 
 render = ->
 

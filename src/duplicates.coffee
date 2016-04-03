@@ -1,4 +1,6 @@
 standingStones = require './standing-stones'
+enemyModule = require './enemy'
+attack = require './attack'
 
 previousMeasure = [
   false
@@ -17,11 +19,14 @@ load = (game) ->
   game.load.spritesheet 'duplicate.water', 'img/blue.bmp', 1, 1
   game.load.spritesheet 'duplicate.earth', 'img/green.bmp', 1, 1
   game.load.spritesheet 'duplicate.wind', 'img/silver.bmp', 1, 1
+  game.load.spritesheet 'duplicate.attack-range', 'img/red.bmp', 1, 1
 
 duplicates = null
+attackRanges = null
 create = (g) ->
   game = g
-  duplicates = game.add.group()
+  attackRanges = game.add.physicsGroup Phaser.Physics.ARCADE
+  duplicates = game.add.physicsGroup Phaser.Physics.ARCADE
 
 measureMoved = false
 moveMeasure = ->
@@ -50,8 +55,28 @@ summon = (element) ->
   summonSignal.dispatch element
 
 spawn = (element, position) ->
+  # attack range
+  attackRange = attackRanges.create position.x, position.y, "duplicate.attack-range", 1
+  attackRange.scale.set 50, 50
+  attackRange.anchor.set 0.5
+
+  # actual image of duplicate
   dup = duplicates.create position.x, position.y, "duplicate.#{element}", 1
-  dup.scale.set 50, 50
+  dup.scale.set 30, 30
+  dup.anchor.set 0.5
+
+  dup.attackRange = attackRange
+  attackRange.duplicate = dup
+
+  dup.attack = (enemy) ->
+    attack[element](enemy)
+
+update = ->
+  overlapHandler = (enemy, attackRange) ->
+    attackRange.duplicate.attack enemy
+  enemyModule.enemies().forEach (nme) ->
+    duplicates.forEach (dup) ->
+      game.physics.arcade.overlap nme, dup.attackRange, overlapHandler
 
 module.exports =
   cast: cast
@@ -60,3 +85,4 @@ module.exports =
   create: create
   summonSignal: summonSignal
   spawn: spawn
+  update: update
