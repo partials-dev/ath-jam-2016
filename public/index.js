@@ -74,7 +74,61 @@ module.exports = {
 };
 
 
-},{"./standing-stones":11}],2:[function(require,module,exports){
+},{"./standing-stones":12}],2:[function(require,module,exports){
+var create, createUpdate, enemies, game, load, spawn;
+
+game = null;
+
+enemies = null;
+
+load = function(game) {
+  game.load.spritesheet('enemy.fire', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('enemy.water', 'img/blue.bmp', 1, 1);
+  game.load.spritesheet('enemy.wind', 'img/silver.bmp', 1, 1);
+  return game.load.spritesheet('enemy.earth', 'img/green.bmp', 1, 1);
+};
+
+create = function(g) {
+  game = g;
+  return enemies = game.add.group();
+};
+
+spawn = function(position, type, path) {
+  var enemy, key;
+  key = "enemy." + type;
+  enemy = enemies.create(position.x, position.y, key);
+  enemy.scale.set(100, 100);
+  enemy.update = createUpdate(enemy, path);
+  return enemy;
+};
+
+createUpdate = function(enemy, path) {
+  var enemyAlive, pi, update;
+  pi = 0;
+  enemyAlive = true;
+  return update = function() {
+    if (pi < path.length) {
+      enemy.x = path[pi].x;
+      enemy.y = path[pi].y;
+      pi += enemy.speed;
+      return void 0;
+    } else if (enemyAlive) {
+      enemyAlive = false;
+      enemy.destroy();
+      console.log("Health: " + health);
+      return enemy.damage;
+    }
+  };
+};
+
+module.exports = {
+  load: load,
+  create: create,
+  spawn: spawn
+};
+
+
+},{}],3:[function(require,module,exports){
 var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
@@ -146,7 +200,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":4,"./move-enemies":6,"./music":7,"./phaser":8,"./player":9,"./spawn-points":10,"./standing-stones":11,"./worshippers":12}],3:[function(require,module,exports){
+},{"./duplicates":1,"./metronome":5,"./move-enemies":7,"./music":8,"./phaser":9,"./player":10,"./spawn-points":11,"./standing-stones":12,"./worshippers":13}],4:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -188,7 +242,7 @@ module.exports = {
 };
 
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var beat, beatDuration, closestBeat, create, isHit, lastBeatAt, lastMeasureStartedAt, nextBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -285,7 +339,7 @@ module.exports = {
 };
 
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyData, listInputs, log, logger, midi, midiMovementState, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, signal, type, velocity;
 
 log = console.log.bind(console);
@@ -469,14 +523,12 @@ module.exports = {
 };
 
 
-},{}],6:[function(require,module,exports){
-var base, bmd, create, enemy, enemyAlive, game, getPath1, getPath2, health, load, path, path1, path2, pathIsVisible, pi, plot, scaleLane, spawn1, spawn2, update;
+},{}],7:[function(require,module,exports){
+var base, bmd, create, createUpdate, enemy, game, getPath1, getPath2, health, load, path, path1, path2, pathIsVisible, plot, scaleLane, spawn1, spawn2;
 
 bmd = null;
 
 enemy = null;
-
-pi = 0;
 
 path = [];
 
@@ -519,7 +571,7 @@ getPath2 = function(spawnPosition) {
   return path2;
 };
 
-scaleLane = function(lane) {
+scaleLane = function(l) {
   var n;
   lane.x = (function() {
     var j, len, ref, results;
@@ -541,7 +593,7 @@ scaleLane = function(lane) {
     }
     return results;
   })();
-  return lane;
+  return l;
 };
 
 load = function(game) {
@@ -588,19 +640,23 @@ plot = function(lane) {
   return lane;
 };
 
-enemyAlive = true;
-
-update = function() {
-  if (pi < path.length) {
-    enemy.x = path[pi].x;
-    enemy.y = path[pi].y;
-    return pi += enemy.speed;
-  } else if (enemyAlive) {
-    health -= enemy.damage;
-    enemyAlive = false;
-    enemy.kill();
-    return console.log(health);
-  }
+createUpdate = function(enemy, path) {
+  var enemyAlive, pi, update;
+  pi = 0;
+  enemyAlive = true;
+  return update = function() {
+    if (pi < path.length) {
+      enemy.x = path[pi].x;
+      enemy.y = path[pi].y;
+      pi += enemy.speed;
+      return void 0;
+    } else if (enemyAlive) {
+      enemyAlive = false;
+      enemy.destroy();
+      console.log("Health: " + health);
+      return enemy.damage;
+    }
+  };
 };
 
 module.exports = {
@@ -610,7 +666,7 @@ module.exports = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var background, cast, castFail, castSucceed, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
   hasProp = {}.hasOwnProperty;
 
@@ -683,11 +739,11 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],8:[function(require,module,exports){
+},{"./metronome":5}],9:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var SPEED, cast, create, cursors, duplicates, getPressedDirections, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
@@ -848,9 +904,11 @@ module.exports = {
 };
 
 
-},{"./duplicates":1,"./mana":3,"./metronome":4,"./midi":5,"./music":7}],10:[function(require,module,exports){
-var SPAWN_DELAY, create, enemies, game, load, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints,
+},{"./duplicates":1,"./mana":4,"./metronome":5,"./midi":6,"./music":8}],11:[function(require,module,exports){
+var SPAWN_DELAY, create, enemies, enemy, game, load, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints, update,
   hasProp = {}.hasOwnProperty;
+
+enemy = require('./enemy');
 
 spawnPoints = [
   {
@@ -903,35 +961,30 @@ enemies = null;
 SPAWN_DELAY = 200;
 
 load = function(game) {
-  game.load.spritesheet('enemy.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('enemy.water', 'img/blue.bmp', 1, 1);
-  game.load.spritesheet('enemy.wind', 'img/silver.bmp', 1, 1);
-  return game.load.spritesheet('enemy.earth', 'img/green.bmp', 1, 1);
+  return enemy.load(game);
 };
 
-spawnGroup = function(type, position, number) {
-  var results, spawn;
-  spawn = function() {
-    var enemy;
-    enemy = enemies.create(position.x, position.y, "enemy." + type);
-    return enemy.scale.set(100, 100);
+spawnGroup = function(type, position, number, path) {
+  var results, s;
+  s = function() {
+    return enemy.spawn(position, type, path);
   };
   results = [];
   while (number >= 0) {
-    setTimeout(spawn, number * SPAWN_DELAY);
+    setTimeout(s, number * SPAWN_DELAY);
     results.push(number -= 1);
   }
   return results;
 };
 
-spawnGroups = function(position, wave) {
+spawnGroups = function(position, wave, path) {
   var number, ref, results, type;
   ref = wave.enemies;
   results = [];
   for (type in ref) {
     if (!hasProp.call(ref, type)) continue;
     number = ref[type];
-    results.push(spawnGroup(type, position, number));
+    results.push(spawnGroup(type, position, number, path));
   }
   return results;
 };
@@ -940,7 +993,7 @@ scheduleSpawnPoint = function(spawnPoint) {
   return spawnPoint.waves.forEach(function(wave) {
     var c;
     c = function() {
-      return spawnGroups(spawnPoint.location, wave);
+      return spawnGroups(spawnPoint.location, wave, path);
     };
     return setTimeout(c, wave.time);
   });
@@ -954,9 +1007,11 @@ scheduleSpawnPoints = function() {
 
 create = function(g) {
   game = g;
-  enemies = game.add.group();
+  enemy.create(game);
   return scheduleSpawnPoints();
 };
+
+update = function() {};
 
 module.exports = {
   load: load,
@@ -964,7 +1019,7 @@ module.exports = {
 };
 
 
-},{}],11:[function(require,module,exports){
+},{"./enemy":2}],12:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -1035,7 +1090,7 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],12:[function(require,module,exports){
+},{"./metronome":5}],13:[function(require,module,exports){
 var cast, create, embiggen, i, load, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
@@ -1115,4 +1170,4 @@ module.exports = {
 };
 
 
-},{"./metronome":4}]},{},[2]);
+},{"./metronome":5}]},{},[3]);

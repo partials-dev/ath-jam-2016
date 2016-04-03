@@ -1,6 +1,5 @@
 bmd = null
 enemy = null
-pi = 0
 path = []
 game = null
 health = 10
@@ -31,10 +30,10 @@ getPath1 = (spawnPosition) ->
 getPath2 = (spawnPosition) ->
   path2
 
-scaleLane = (lane)->
+scaleLane = (l) ->
   lane.x = (n * game.width for n in lane.x)
   lane.y = (n * game.height for n in lane.y)
-  return lane
+  return l
 
 load = (game) ->
   game.load.spritesheet 'enemy', 'img/blue.bmp', 1, 1
@@ -74,17 +73,20 @@ plot = (lane)->
     p++
   return lane
 
-enemyAlive = true
-update = ->
-  if pi < path.length
-    enemy.x = path[pi].x
-    enemy.y = path[pi].y
-    pi += enemy.speed
-  else if enemyAlive
-    health -= enemy.damage
-    enemyAlive = false
-    enemy.kill()
-    console.log health
+createUpdate = (enemy, path) ->
+  pi = 0
+  enemyAlive = true
+  update = ->
+    if pi < path.length
+      enemy.x = path[pi].x
+      enemy.y = path[pi].y
+      pi += enemy.speed
+      undefined
+    else if enemyAlive
+      enemyAlive = false
+      enemy.destroy()
+      console.log "Health: #{health}"
+      enemy.damage
 
 module.exports =
   update: update
