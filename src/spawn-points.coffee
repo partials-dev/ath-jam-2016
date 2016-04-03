@@ -29,6 +29,7 @@ spawnPoints = [
         enemies:
           minion: 8
       ,
+
         time: 1000 * 60
         enemies:
           minion: 5
