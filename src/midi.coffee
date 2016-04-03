@@ -80,15 +80,12 @@ onMIDIMessage = (event) ->
       if hasKey(noteToDirection, JSON.stringify note)
         direction = noteToDirection[note]
         midiMovementState[direction].isDown = true
-        console.log direction + midiMovementState[direction].isDown
 
 
     when 128 # Note Off
       if hasKey(noteToDirection, JSON.stringify note)
         direction = noteToDirection[note]
         midiMovementState[direction].isDown = false
-        console.log direction + midiMovementState[direction].isDown
-
 
 onStateChange = (event) ->
   `var type`
@@ -97,13 +94,13 @@ onStateChange = (event) ->
   state = port.state
   name = port.name
   type = port.type
-  if type == 'input'
-    log 'name', name, 'port', port, 'state', state
+  #if type == 'input'
+    #log 'name', name, 'port', port, 'state', state
   return
 
 listInputs = (inputs) ->
   input = inputs.value
-  log 'Input port : [ type:\'' + input.type + '\' id: \'' + input.id + '\' manufacturer: \'' + input.manufacturer + '\' name: \'' + input.name + '\' version: \'' + input.version + '\']'
+  #log 'Input port : [ type:\'' + input.type + '\' id: \'' + input.id + '\' manufacturer: \'' + input.manufacturer + '\' name: \'' + input.name + '\' version: \'' + input.version + '\']'
   return
 
 noteOn = (midiNote, velocity) ->

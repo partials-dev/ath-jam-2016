@@ -446,15 +446,13 @@ onMIDIMessage = function(event) {
       signal.dispatch(note);
       if (hasKey(noteToDirection, JSON.stringify(note))) {
         direction = noteToDirection[note];
-        midiMovementState[direction].isDown = true;
-        return console.log(direction + midiMovementState[direction].isDown);
+        return midiMovementState[direction].isDown = true;
       }
       break;
     case 128:
       if (hasKey(noteToDirection, JSON.stringify(note))) {
         direction = noteToDirection[note];
-        midiMovementState[direction].isDown = false;
-        return console.log(direction + midiMovementState[direction].isDown);
+        return midiMovementState[direction].isDown = false;
       }
   }
 };
@@ -466,15 +464,11 @@ onStateChange = function(event) {
   state = port.state;
   name = port.name;
   type = port.type;
-  if (type === 'input') {
-    log('name', name, 'port', port, 'state', state);
-  }
 };
 
 listInputs = function(inputs) {
   var input;
   input = inputs.value;
-  log('Input port : [ type:\'' + input.type + '\' id: \'' + input.id + '\' manufacturer: \'' + input.manufacturer + '\' name: \'' + input.name + '\' version: \'' + input.version + '\']');
 };
 
 noteOn = function(midiNote, velocity) {};
