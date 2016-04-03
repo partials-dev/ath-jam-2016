@@ -1,4 +1,4 @@
-tempo = 100 # bpm
+tempo = 120 # bpm
 beatDuration = 60000 / tempo
 
 lastBeatAt = null

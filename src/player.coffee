@@ -30,8 +30,8 @@ load = (game) ->
 create = (game) ->
   # sprite
   player = game.add.sprite 0.3 * game.width, 0.8 * game.height, 'player'
-  #player.scale.set 50, 50
-  
+  player.anchor.set 0.5
+
   health.create game
   mana.create game
 
@@ -103,7 +103,7 @@ summon = (element) ->
   if (mana.current() - cost) > 0
     player.animations.play "summon.#{element}"
     mana.spend cost
-    duplicates.spawn element, player.body.position
+    duplicates.spawn element, player.body.center
     music.duplicateSummoned element
 
 module.exports =

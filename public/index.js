@@ -1,7 +1,91 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var cast, create, currentMeasure, duplicates, game, load, measureMoved, moveMeasure, onBeat, previousMeasure, spawn, standingStones, summon, summonSignal;
+var attack, attacks, create, earthAttack, enemyModule, game, load, nextFire, update;
+
+attacks = null;
+
+enemyModule = require('./enemy');
+
+load = function(game) {
+  game.load.spritesheet('attack.fire', 'img/red.bmp', 1, 1);
+  game.load.spritesheet('attack.water', 'img/blue.bmp', 1, 1);
+  game.load.spritesheet('attack.earth', 'img/green.bmp', 1, 1);
+  return game.load.spritesheet('attack.wind', 'img/silver.bmp', 1, 1);
+};
+
+game = null;
+
+create = function(g) {
+  game = g;
+  return attacks = game.add.physicsGroup(Phaser.Physics.ARCADE);
+};
+
+nextFire = {
+  fire: 1500,
+  water: 500,
+  wind: 500,
+  earth: 1000
+};
+
+attack = function(attacker, enemy, element) {
+  var sprite;
+  if (!(game.time.time > attacker.nextFire)) {
+    return;
+  }
+  sprite = attacks.create(attacker.body.center.x, attacker.body.center.y, "attack." + element);
+  sprite.element = element;
+  attacker.nextFire = game.time.time + nextFire[element];
+  if (element !== 'earth') {
+    sprite.scale.set(10, 10);
+    return game.physics.arcade.moveToObject(sprite, enemy, 100);
+  } else {
+    sprite.animations.add('shake', [0, 1, 2, 0, 1, 2, 0, 1, 2], 10, false);
+    sprite.animations.play('shake');
+    earthAttack(attacker.attackRange);
+    return sprite.events.onAnimationComplete.add(function() {
+      return sprite.destroy();
+    });
+  }
+};
+
+earthAttack = function(range) {
+  var overlapHandler;
+  overlapHandler = function(enemy, range) {
+    return enemy.hitBy('earth');
+  };
+  return enemyModule.enemies().forEach(function(enemy) {
+    return game.physics.arcade.overlap(enemy, range, overlapHandler);
+  });
+};
+
+update = function() {
+  var overlapHandler;
+  overlapHandler = function(enemy, attack) {
+    enemy.hitBy(attack.element);
+    return attack.kill();
+  };
+  return enemyModule.enemies().forEach(function(nme) {
+    return attacks.forEach(function(atk) {
+      return game.physics.arcade.overlap(nme, atk, overlapHandler);
+    });
+  });
+};
+
+module.exports = {
+  load: load,
+  create: create,
+  update: update,
+  attack: attack
+};
+
+
+},{"./enemy":3}],2:[function(require,module,exports){
+var attack, attackRanges, cast, create, currentMeasure, duplicates, enemyModule, game, load, measureMoved, moveMeasure, onBeat, previousMeasure, spawn, standingStones, summon, summonSignal, update;
 
 standingStones = require('./standing-stones');
+
+enemyModule = require('./enemy');
+
+attack = require('./attack');
 
 previousMeasure = [false, false, false, false];
 
@@ -20,9 +104,12 @@ load = function(game) {
 
 duplicates = null;
 
+attackRanges = null;
+
 create = function(g) {
   game = g;
-  return duplicates = game.add.group();
+  attackRanges = game.add.physicsGroup(Phaser.Physics.ARCADE);
+  return duplicates = game.add.physicsGroup(Phaser.Physics.ARCADE);
 };
 
 measureMoved = false;
@@ -59,8 +146,31 @@ summon = function(element) {
 };
 
 spawn = function(element, position) {
-  var dup;
-  return dup = duplicates.create(position.x, position.y, "duplicate." + element, 1);
+  var attackRange, dup;
+  attackRange = attackRanges.create(position.x, position.y, "duplicate.attack-range", 1);
+  attackRange.scale.set(50, 50);
+  attackRange.anchor.set(0.5);
+  dup = duplicates.create(position.x, position.y, "duplicate." + element, 1);
+  dup.scale.set(30, 30);
+  dup.anchor.set(0.5);
+  dup.nextFire = 0;
+  dup.attackRange = attackRange;
+  attackRange.duplicate = dup;
+  return dup.attack = function(enemy) {
+    return attack.attack(dup, enemy, element);
+  };
+};
+
+update = function() {
+  var overlapHandler;
+  overlapHandler = function(enemy, attackRange) {
+    return attackRange.duplicate.attack(enemy);
+  };
+  return enemyModule.enemies().forEach(function(nme) {
+    return duplicates.forEach(function(dup) {
+      return game.physics.arcade.overlap(nme, dup.attackRange, overlapHandler);
+    });
+  });
 };
 
 module.exports = {
@@ -69,16 +179,31 @@ module.exports = {
   load: load,
   create: create,
   summonSignal: summonSignal,
-  spawn: spawn
+  spawn: spawn,
+  update: update
 };
 
 
-},{"./standing-stones":13}],2:[function(require,module,exports){
-var create, createUpdate, enemies, game, load, spawn, updateEnemies;
+},{"./attack":1,"./enemy":3,"./standing-stones":14}],3:[function(require,module,exports){
+var FREEZE_DURATION, create, createUpdate, damageByElement, enemies, game, healthByType, load, spawn, updateEnemies;
 
 game = null;
 
 enemies = null;
+
+healthByType = {
+  minion: 5,
+  boss: 50
+};
+
+damageByElement = {
+  fire: 5,
+  wind: 1,
+  water: 0,
+  earth: 3
+};
+
+FREEZE_DURATION = 5000;
 
 load = function(game) {
   game.load.atlasJSONArray('enemy.minion', 'img/enemies/minion.png', 'img/enemies/minion.json');
@@ -87,7 +212,7 @@ load = function(game) {
 
 create = function(g) {
   game = g;
-  return enemies = game.add.group();
+  return enemies = game.add.physicsGroup(Phaser.Physics.ARCADE);
 };
 
 spawn = function(type, path) {
@@ -96,10 +221,21 @@ spawn = function(type, path) {
   enemy = enemies.create(path[0].x, path[0].y, key);
   enemy.update = createUpdate(enemy, path);
   enemy.speed = 1;
+  enemy.health = healthByType[type];
+  enemy.unfreezeTime = 0;
+  enemy.hitBy = function(element) {
+    console.log("hit by " + element);
+    enemy.health -= damageByElement[element];
+    console.log("health: " + enemy.health);
+    if (element === 'water') {
+      enemy.unfreezeTime = game.time.time + FREEZE_DURATION;
+    }
+    if (enemy.health <= 0) {
+      return enemy.kill();
+    }
+  };
   return enemy;
 };
-
-window.spawn = spawn;
 
 updateEnemies = function() {
   return enemies.forEach(function(enemy) {
@@ -113,8 +249,14 @@ createUpdate = function(enemy, path) {
   enemyAlive = true;
   i = 0;
   return update = function() {
+    var unfrozen;
     i++;
-    i = i % 3;
+    unfrozen = game.time.time > enemy.unfreezeTime;
+    if (unfrozen) {
+      i = i % 3;
+    } else {
+      i = i % 6;
+    }
     if (i !== 0) {
       return;
     }
@@ -135,11 +277,14 @@ module.exports = {
   load: load,
   create: create,
   spawn: spawn,
+  enemies: function() {
+    return enemies;
+  },
   updateEnemies: updateEnemies
 };
 
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_health, create, currentHealth, healthBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -181,8 +326,8 @@ module.exports = {
 };
 
 
-},{}],4:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, base, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
+},{}],5:[function(require,module,exports){
+var GAME_HEIGHT, GAME_WIDTH, Phaser, attack, base, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -202,6 +347,8 @@ spawnPoints = require('./spawn-points');
 
 moveEnemies = require('./move-enemies');
 
+attack = require('./attack');
+
 GAME_WIDTH = $(window).width();
 
 GAME_HEIGHT = $(window).height();
@@ -216,7 +363,8 @@ preload = function() {
   duplicates.load(game);
   moveEnemies.load(game);
   music.load(game);
-  return spawnPoints.load(game);
+  spawnPoints.load(game);
+  return attack.load(game);
 };
 
 met = null;
@@ -228,6 +376,7 @@ base = {
 
 create = function() {
   var background;
+  game.physics.startSystem(Phaser.Physics.ARCADE);
   background = game.add.sprite(0, 0, 'map');
   background.scale.set(game.width / 5040, game.height / 3960);
   standingStones.create(game);
@@ -238,6 +387,7 @@ create = function() {
   duplicates.create(game);
   moveEnemies.create(game, base, spawnPoints.s1, spawnPoints.s2);
   spawnPoints.create(game);
+  attack.create(game);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
   met.add(duplicates.onBeat);
@@ -249,7 +399,9 @@ create = function() {
 update = function() {
   worshippers.move(metronome.progressThroughMeasure());
   player.move();
-  return spawnPoints.update();
+  spawnPoints.update();
+  duplicates.update();
+  return attack.update();
 };
 
 render = function() {};
@@ -262,7 +414,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":6,"./move-enemies":8,"./music":9,"./phaser":10,"./player":11,"./spawn-points":12,"./standing-stones":13,"./worshippers":14}],5:[function(require,module,exports){
+},{"./attack":1,"./duplicates":2,"./metronome":7,"./move-enemies":9,"./music":10,"./phaser":11,"./player":12,"./spawn-points":13,"./standing-stones":14,"./worshippers":15}],6:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -304,10 +456,10 @@ module.exports = {
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var beat, beatDuration, closestBeat, create, isHit, lastBeatAt, lastMeasureStartedAt, nextBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
-tempo = 100;
+tempo = 120;
 
 beatDuration = 60000 / tempo;
 
@@ -401,7 +553,7 @@ module.exports = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyData, listInputs, log, logger, midi, midiMovementState, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, signal, type, velocity;
 
 log = console.log.bind(console);
@@ -579,7 +731,7 @@ module.exports = {
 };
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var create, createUpdate, game, load, path1, path2, pathIsVisible, plot, scaleLane;
 
 game = null;
@@ -694,8 +846,8 @@ module.exports = {
 };
 
 
-},{}],9:[function(require,module,exports){
-var background, cast, castFail, castSucceed, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
+},{}],10:[function(require,module,exports){
+var background, bgBeat, bgLength, cast, castFail, castSucceed, create, dupBeat, dupLength, duplicateSummoned, duplicates, game, load, metronome, onBeat,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
@@ -719,26 +871,38 @@ create = function(g) {
   return cast.fail = game.add.audio('cast.fail');
 };
 
+dupBeat = 0;
+
+dupLength = (4 * 16) - 1;
+
+bgBeat = 0;
+
+bgLength = (64 * 4) - 1;
+
 onBeat = function(beat) {
-  var element, results, sound;
-  if (beat === 0) {
-    background.play();
-    results = [];
+  var element, sound;
+  if (dupBeat === 0) {
     for (element in duplicates) {
       if (!hasProp.call(duplicates, element)) continue;
       sound = duplicates[element];
-      results.push(sound.play());
+      sound.play();
     }
-    return results;
   }
+  if (bgBeat === 0) {
+    background.play();
+  }
+  dupBeat++;
+  dupBeat = dupBeat % dupLength;
+  bgBeat++;
+  return bgBeat = bgBeat % bgLength;
 };
 
 load = function(game) {
-  game.load.audio('background', 'sound/test.mp3');
-  game.load.audio('duplicate.fire', 'sound/dup-1.mp3');
-  game.load.audio('duplicate.wind', 'sound/dup-2.mp3');
-  game.load.audio('duplicate.earth', 'sound/dup-3.mp3');
-  game.load.audio('duplicate.water', 'sound/dup-4.mp3');
+  game.load.audio('background', 'sound/bg.wav');
+  game.load.audio('duplicate.fire', 'sound/fire.wav');
+  game.load.audio('duplicate.wind', 'sound/wind.wav');
+  game.load.audio('duplicate.earth', 'sound/earth.wav');
+  game.load.audio('duplicate.water', 'sound/water.wav');
   game.load.audio('cast.succeed', 'sound/cast.mp3');
   return game.load.audio('cast.fail', 'sound/cast-fail.mp3');
 };
@@ -767,11 +931,11 @@ module.exports = {
 };
 
 
-},{"./metronome":6}],10:[function(require,module,exports){
+},{"./metronome":7}],11:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var SPEED, cast, create, cursors, duplicates, getPressedDirections, health, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
@@ -820,6 +984,7 @@ load = function(game) {
 create = function(game) {
   var space;
   player = game.add.sprite(0.3 * game.width, 0.8 * game.height, 'player');
+  player.anchor.set(0.5);
   health.create(game);
   mana.create(game);
   game.physics.arcade.enable(player);
@@ -917,7 +1082,7 @@ summon = function(element) {
   if ((mana.current() - cost) > 0) {
     player.animations.play("summon." + element);
     mana.spend(cost);
-    duplicates.spawn(element, player.body.position);
+    duplicates.spawn(element, player.body.center);
     return music.duplicateSummoned(element);
   }
 };
@@ -934,7 +1099,7 @@ module.exports = {
 };
 
 
-},{"./duplicates":1,"./health":3,"./mana":5,"./metronome":6,"./midi":7,"./music":9}],12:[function(require,module,exports){
+},{"./duplicates":2,"./health":4,"./mana":6,"./metronome":7,"./midi":8,"./music":10}],13:[function(require,module,exports){
 var SPAWN_DELAY, create, enemies, enemy, game, load, moveEnemies, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints, update,
   hasProp = {}.hasOwnProperty;
 
@@ -953,14 +1118,12 @@ spawnPoints = [
       {
         time: 0,
         enemies: {
-          fire: 5,
-          wind: 3
+          minion: 5
         }
       }, {
         time: 1000 * 20,
         enemies: {
-          fire: 5,
-          wind: 3
+          minion: 3
         }
       }
     ]
@@ -974,14 +1137,13 @@ spawnPoints = [
       {
         time: 1000 * 10,
         enemies: {
-          fire: 5,
-          wind: 3
+          minion: 5
         }
       }, {
         time: 1000 * 20,
         enemies: {
-          fire: 5,
-          wind: 3
+          minion: 10,
+          boss: 1
         }
       }
     ]
@@ -1060,7 +1222,7 @@ module.exports = {
 };
 
 
-},{"./enemy":2,"./move-enemies":8}],13:[function(require,module,exports){
+},{"./enemy":3,"./move-enemies":9}],14:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -1139,7 +1301,7 @@ module.exports = {
 };
 
 
-},{"./metronome":6}],14:[function(require,module,exports){
+},{"./metronome":7}],15:[function(require,module,exports){
 var cast, create, embiggen, i, load, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
@@ -1219,4 +1381,4 @@ module.exports = {
 };
 
 
-},{"./metronome":6}]},{},[4]);
+},{"./metronome":7}]},{},[5]);

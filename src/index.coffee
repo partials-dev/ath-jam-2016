@@ -8,6 +8,7 @@ music = require './music'
 duplicates = require './duplicates'
 spawnPoints = require './spawn-points'
 moveEnemies = require './move-enemies'
+attack = require './attack'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
@@ -24,6 +25,7 @@ preload = ->
   moveEnemies.load game
   music.load game
   spawnPoints.load game
+  attack.load game
 
 met = null
 
@@ -32,6 +34,7 @@ base =
   y: 1
 
 create = ->
+  game.physics.startSystem Phaser.Physics.ARCADE
   background = game.add.sprite 0, 0, 'map'
   background.scale.set game.width / 5040, game.height / 3960
   # create modules
@@ -43,6 +46,7 @@ create = ->
   duplicates.create game
   moveEnemies.create game, base, spawnPoints.s1, spawnPoints.s2
   spawnPoints.create game
+  attack.create game
 
   # wire up event listeners
   met.add standingStones.onBeat
@@ -57,6 +61,8 @@ update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()
   spawnPoints.update()
+  duplicates.update()
+  attack.update()
 
 render = ->
 

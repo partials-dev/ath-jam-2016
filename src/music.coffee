@@ -19,19 +19,32 @@ create = (g) ->
   cast.succeed = game.add.audio 'cast.succeed'
   cast.fail = game.add.audio 'cast.fail'
 
+dupBeat = 0
+dupLength = (4 * 16) - 1
+
+bgBeat = 0
+bgLength = (64 * 4) - 1
 onBeat = (beat) ->
-  if beat is 0
-    background.play()
+  if dupBeat is 0
     sound.play() for own element, sound of duplicates
 
+  if bgBeat is 0
+    background.play()
+
+  dupBeat++
+  dupBeat = dupBeat % dupLength
+
+  bgBeat++
+  bgBeat = bgBeat % bgLength
+
 load = (game) ->
-  game.load.audio 'background', 'sound/test.mp3'
+  game.load.audio 'background', 'sound/bg.wav'
 
   # duplicates
-  game.load.audio 'duplicate.fire', 'sound/dup-1.mp3'
-  game.load.audio 'duplicate.wind', 'sound/dup-2.mp3'
-  game.load.audio 'duplicate.earth', 'sound/dup-3.mp3'
-  game.load.audio 'duplicate.water', 'sound/dup-4.mp3'
+  game.load.audio 'duplicate.fire', 'sound/fire.wav'
+  game.load.audio 'duplicate.wind', 'sound/wind.wav'
+  game.load.audio 'duplicate.earth', 'sound/earth.wav'
+  game.load.audio 'duplicate.water', 'sound/water.wav'
 
   # casting
   game.load.audio 'cast.succeed', 'sound/cast.mp3'
