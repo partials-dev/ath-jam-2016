@@ -93,10 +93,10 @@ create = function(g) {
   return enemies = game.add.group();
 };
 
-spawn = function(position, type, path) {
+spawn = function(type, path) {
   var enemy, key;
   key = "enemy." + type;
-  enemy = enemies.create(position.x, position.y, key);
+  enemy = enemies.create(path[0].x, path[0].y, key);
   enemy.scale.set(10, 10);
   enemy.update = createUpdate(enemy, path);
   enemy.speed = 1;
@@ -117,7 +117,6 @@ createUpdate = function(enemy, path) {
   enemyAlive = true;
   i = 0;
   return update = function() {
-    console.log("Updating enemy");
     i++;
     i = i % 3;
     if (i !== 0) {
@@ -961,10 +960,10 @@ load = function(game) {
   return enemy.load(game);
 };
 
-spawnGroup = function(type, position, number, path) {
+spawnGroup = function(type, number, path) {
   var results, s;
   s = function() {
-    return enemy.spawn(position, type, path);
+    return enemy.spawn(type, path);
   };
   results = [];
   while (number >= 0) {
@@ -974,14 +973,14 @@ spawnGroup = function(type, position, number, path) {
   return results;
 };
 
-spawnGroups = function(position, wave, path) {
+spawnGroups = function(wave, path) {
   var number, ref, results, type;
   ref = wave.enemies;
   results = [];
   for (type in ref) {
     if (!hasProp.call(ref, type)) continue;
     number = ref[type];
-    results.push(spawnGroup(type, position, number, path));
+    results.push(spawnGroup(type, number, path));
   }
   return results;
 };
@@ -992,7 +991,7 @@ scheduleSpawnPoint = function(spawnPoint) {
   return spawnPoint.waves.forEach(function(wave) {
     var c;
     c = function() {
-      return spawnGroups(spawnPoint.location, wave, path);
+      return spawnGroups(wave, path);
     };
     return setTimeout(c, wave.time);
   });

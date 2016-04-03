@@ -11,9 +11,9 @@ create = (g) ->
   game = g
   enemies = game.add.group()
 
-spawn = (position, type, path) ->
+spawn = (type, path) ->
   key = "enemy.#{type}"
-  enemy = enemies.create position.x, position.y, key
+  enemy = enemies.create path[0].x, path[0].y, key
   enemy.scale.set 10, 10
   enemy.update = createUpdate enemy, path
   enemy.speed = 1
@@ -30,7 +30,6 @@ createUpdate = (enemy, path) ->
   enemyAlive = true
   i = 0
   update = ->
-    console.log "Updating enemy"
     i++
     i = i % 3
     return unless i is 0

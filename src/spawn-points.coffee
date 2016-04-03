@@ -38,19 +38,19 @@ SPAWN_DELAY = 500
 load = (game) ->
   enemy.load game
 
-spawnGroup = (type, position, number, path) ->
-  s = -> enemy.spawn position, type, path
+spawnGroup = (type, number, path) ->
+  s = -> enemy.spawn type, path
   while number >= 0
     setTimeout s, number * SPAWN_DELAY
     number -= 1
 
-spawnGroups = (position, wave, path) ->
-  spawnGroup type, position, number, path for own type, number of wave.enemies
+spawnGroups = (wave, path) ->
+  spawnGroup type, number, path for own type, number of wave.enemies
 
 scheduleSpawnPoint = (spawnPoint) ->
   path = spawnPoint.path()
   spawnPoint.waves.forEach (wave) ->
-    c = -> spawnGroups spawnPoint.location, wave, path
+    c = -> spawnGroups wave, path
     setTimeout c, wave.time
 
 scheduleSpawnPoints = ->
