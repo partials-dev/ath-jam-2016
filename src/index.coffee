@@ -7,6 +7,7 @@ player = require './player'
 music = require './music'
 duplicates = require './duplicates'
 spawnPoints = require './spawn-points'
+moveEnemies = require './move-enemies'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
@@ -19,6 +20,7 @@ preload = ->
   player.load game
   standingStones.load game
   duplicates.load game
+  moveEnemies.load game
   music.load game
   spawnPoints.load game
 
@@ -33,6 +35,7 @@ create = ->
   player.create game
   duplicates.create game
   spawnPoints.create game
+  moveEnemies.create game
 
   # wire up event listeners
   met.add standingStones.onBeat
@@ -46,6 +49,7 @@ create = ->
 update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()
+  moveEnemies.update()
 
 render = ->
 

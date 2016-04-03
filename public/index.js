@@ -74,8 +74,8 @@ module.exports = {
 };
 
 
-},{"./standing-stones":10}],2:[function(require,module,exports){
-var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
+},{"./standing-stones":11}],2:[function(require,module,exports){
+var GAME_HEIGHT, GAME_WIDTH, Phaser, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
 
@@ -93,6 +93,8 @@ duplicates = require('./duplicates');
 
 spawnPoints = require('./spawn-points');
 
+moveEnemies = require('./move-enemies');
+
 GAME_WIDTH = $(window).width();
 
 GAME_HEIGHT = $(window).height();
@@ -104,6 +106,7 @@ preload = function() {
   player.load(game);
   standingStones.load(game);
   duplicates.load(game);
+  moveEnemies.load(game);
   music.load(game);
   return spawnPoints.load(game);
 };
@@ -118,6 +121,7 @@ create = function() {
   player.create(game);
   duplicates.create(game);
   spawnPoints.create(game);
+  moveEnemies.create(game);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
   met.add(duplicates.onBeat);
@@ -128,7 +132,8 @@ create = function() {
 
 update = function() {
   worshippers.move(metronome.progressThroughMeasure());
-  return player.move();
+  player.move();
+  return moveEnemies.update();
 };
 
 render = function() {};
@@ -141,7 +146,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":1,"./metronome":4,"./music":6,"./phaser":7,"./player":8,"./spawn-points":9,"./standing-stones":10,"./worshippers":11}],3:[function(require,module,exports){
+},{"./duplicates":1,"./metronome":4,"./move-enemies":6,"./music":7,"./phaser":8,"./player":9,"./spawn-points":10,"./standing-stones":11,"./worshippers":12}],3:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -465,6 +470,121 @@ module.exports = {
 
 
 },{}],6:[function(require,module,exports){
+var base, bmd, create, enemy, game, health, lane, load, path, pathIsVisible, pi, plot, scaleLane, spawn, update;
+
+bmd = null;
+
+enemy = null;
+
+pi = 0;
+
+path = [];
+
+game = null;
+
+health = 10;
+
+pathIsVisible = 1;
+
+base = {
+  x: 0.5,
+  y: 0
+};
+
+spawn = {
+  x: 0.5,
+  y: 1
+};
+
+lane = {
+  x: [spawn.x, 0.7, 0.3, base.x],
+  y: [spawn.y, 0.6, 0.4, base.y]
+};
+
+scaleLane = function(lane) {
+  var n;
+  lane.x = (function() {
+    var j, len, ref, results;
+    ref = lane.x;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      n = ref[j];
+      results.push(n * game.width);
+    }
+    return results;
+  })();
+  lane.y = (function() {
+    var j, len, ref, results;
+    ref = lane.y;
+    results = [];
+    for (j = 0, len = ref.length; j < len; j++) {
+      n = ref[j];
+      results.push(n * game.height);
+    }
+    return results;
+  })();
+  return console.log(lane);
+};
+
+load = function(game) {
+  return game.load.spritesheet('enemy', 'img/blue.bmp', 1, 1);
+};
+
+create = function(g) {
+  game = g;
+  bmd = game.add.bitmapData(game.width, game.height);
+  bmd.addToWorld();
+  enemy = game.add.sprite(0, 0, 'enemy');
+  enemy.scale.set(50, 50);
+  enemy.anchor.set(0.5);
+  return plot();
+};
+
+plot = function() {
+  var i, p, px, py, results, x;
+  bmd.clear();
+  path = [];
+  x = 1 / game.width;
+  i = 0;
+  scaleLane(lane);
+  while (i <= 1) {
+    px = game.math.catmullRomInterpolation(lane.x, i);
+    py = game.math.catmullRomInterpolation(lane.y, i);
+    path.push({
+      x: px,
+      y: py
+    });
+    bmd.rect(px, py, 1, 1, "rgba(255, 255, 255, " + pathIsVisible + ")");
+    i += x;
+  }
+  p = 0;
+  results = [];
+  while (p < lane.x.length) {
+    bmd.rect(lane.x[p] - 3, lane.y[p] - 3, 6, 6, "rgba(255, 0, 0, " + pathIsVisible + ")");
+    results.push(p++);
+  }
+  return results;
+};
+
+update = function() {
+  enemy.x = path[pi].x;
+  enemy.y = path[pi].y;
+  pi++;
+  if (pi >= path.length) {
+    enemy.kill();
+    health -= 1;
+    return console.log(health);
+  }
+};
+
+module.exports = {
+  update: update,
+  load: load,
+  create: create
+};
+
+
+},{}],7:[function(require,module,exports){
 var background, cast, castFail, castSucceed, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
   hasProp = {}.hasOwnProperty;
 
@@ -537,11 +657,11 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],7:[function(require,module,exports){
+},{"./metronome":4}],8:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var SPEED, cast, create, cursors, duplicates, getPressedDirections, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
@@ -702,7 +822,7 @@ module.exports = {
 };
 
 
-},{"./duplicates":1,"./mana":3,"./metronome":4,"./midi":5,"./music":6}],9:[function(require,module,exports){
+},{"./duplicates":1,"./mana":3,"./metronome":4,"./midi":5,"./music":7}],10:[function(require,module,exports){
 var SPAWN_DELAY, create, enemies, game, load, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints,
   hasProp = {}.hasOwnProperty;
 
@@ -818,7 +938,7 @@ module.exports = {
 };
 
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -889,7 +1009,7 @@ module.exports = {
 };
 
 
-},{"./metronome":4}],11:[function(require,module,exports){
+},{"./metronome":4}],12:[function(require,module,exports){
 var cast, create, embiggen, i, load, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
