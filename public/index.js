@@ -33,7 +33,6 @@ attack = function(attacker, enemy, element) {
   if (!(game.time.time > attacker.nextFire)) {
     return;
   }
-  music.attack(element);
   sprite = attacks.create(attacker.body.center.x, attacker.body.center.y, "attack." + element);
   sprite.element = element;
   attacker.nextFire = game.time.time + nextFire[element];
@@ -295,13 +294,13 @@ module.exports = {
 
 
 },{"./health":4,"./mana":6}],4:[function(require,module,exports){
-var STARTING_BAR_WIDTH, STARTING_health, create, currentHealth, healthBar, spend, updateBar;
+var STARTING_BAR_WIDTH, STARTING_HEALTH, create, currentHealth, healthBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
 
-STARTING_health = 100;
+STARTING_HEALTH = 100;
 
-currentHealth = STARTING_health;
+currentHealth = STARTING_HEALTH;
 
 healthBar = null;
 
@@ -999,6 +998,10 @@ alreadyPlaying = {
 };
 
 duplicateSummoned = function(element) {
+  if (element === 'wind') {
+    wind.fadeIn(500);
+    return;
+  }
   if (!alreadyPlaying[element]) {
     duplicates[element].forEach(function(sound) {
       return sound.fadeIn(500);

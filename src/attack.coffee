@@ -22,7 +22,6 @@ nextFire =
 attack = (attacker, enemy, element) ->
   return unless game.time.time > attacker.nextFire
 
-  music.attack(element)
   sprite = attacks.create attacker.body.center.x, attacker.body.center.y, "attack.#{element}"
   sprite.element = element
   attacker.nextFire = game.time.time + nextFire[element]

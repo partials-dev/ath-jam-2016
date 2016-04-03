@@ -1,6 +1,6 @@
 STARTING_BAR_WIDTH = 50
-STARTING_health = 100
-currentHealth = STARTING_health
+STARTING_HEALTH = 100
+currentHealth = STARTING_HEALTH
 healthBar = null
 
 create = (game) ->

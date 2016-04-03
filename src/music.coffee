@@ -173,6 +173,9 @@ alreadyPlaying =
   earth: false
 
 duplicateSummoned = (element) ->
+  if element is 'wind'
+    wind.fadeIn 500
+    return
   unless alreadyPlaying[element]
     duplicates[element].forEach (sound) ->
       sound.fadeIn 500
