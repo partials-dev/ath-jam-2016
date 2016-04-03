@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "Floating-Witch-Lady-Sprite-Wind-1.png",
+	"frame": {"x":1,"y":1,"w":561,"h":888},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":561,"h":888},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Wind-2.png",
+	"frame": {"x":564,"y":1,"w":535,"h":879},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":18,"y":4,"w":535,"h":879},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Wind-3.png",
+	"frame": {"x":1101,"y":1,"w":524,"h":862},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":23,"y":9,"w":524,"h":862},
+	"sourceSize": {"w":565,"h":888}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Floating Witch Lady Wind.png",
+	"format": "RGBA8888",
+	"size": {"w":1626,"h":890},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:151d7ed3db113a4e42e6c0f1eb12e5bf:135901e44dbc647405e581f524a3073c:9783cc1c2b70b82eeb9e19067f2b3b3e$"
+}
+}

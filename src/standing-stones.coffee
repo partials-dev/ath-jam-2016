@@ -1,24 +1,29 @@
 metronome = require './metronome'
+
 params = [
-    x: 0.5
-    y: 0
+    x: 0
+    y: -100
     sprite: 'standing-stone.fire'
-    img: 'img/fire-stone.bmp'
+    img: 'img/stones/fire-stone.png'
+    json: 'img/stones/fire-stone.json'
   ,
-    x: 1
-    y: 0.5
+    x: 100
+    y: 0
     sprite: 'standing-stone.wind'
-    img: 'img/metal-stone.bmp'
-  ,
-    x: 0.5
-    y: 1
-    sprite: 'standing-stone.earth'
-    img:'img/wood-stone.bmp'
+    img: 'img/stones/wind-stone.png'
+    json: 'img/stones/wind-stone.json'
   ,
     x: 0
-    y: 0.5
+    y: 100
+    sprite: 'standing-stone.earth'
+    img:'img/stones/earth-stone.png'
+    json: 'img/stones/earth-stone.json'
+  ,
+    x: -100
+    y: 0
     sprite: 'standing-stone.water'
-    img: 'img/water-stone.bmp'
+    img: 'img/stones/water-stone.png'
+    json: 'img/stones/water-stone.json'
 ]
 
 spriteKeys = params.map (p) -> p.sprite
@@ -26,16 +31,20 @@ spriteKeys = params.map (p) -> p.sprite
 standingStones = null
 load = (game) ->
   params.forEach (p) ->
-    game.load.spritesheet p.sprite, p.img, 8, 8
+    game.load.atlasJSONArray(p.sprite, p.img, p.json)
 
 create = (game) ->
   standingStones = game.add.group()
+  center =
+    x: 0.28 * game.width
+    y: 0.8 * game.height
+  console.log center
   params.forEach (p) ->
-    stone = standingStones.create p.x, p.y, p.sprite, 1
-    stone.scale.setTo 0.025, 0.025
+    stone = standingStones.create center.x + p.x, center.y + p.y, p.sprite, 1
+    #stone.scale.setTo 10, 10
     stone.animations.add 'beat', [2, 1], 4, false
     stone.animations.add 'cast', [3, 1], 4, false
-  standingStones.scale.set 300, 300
+  #standingStones.scale.set 300, 300
   standingStones
 
 onBeat = (beat) ->

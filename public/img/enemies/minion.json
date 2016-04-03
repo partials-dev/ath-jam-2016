@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "Void-Minion-1.png",
+	"frame": {"x":1,"y":1,"w":195,"h":469},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":192,"y":257,"w":195,"h":469},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Void-Minion-2.png",
+	"frame": {"x":1,"y":945,"w":180,"h":472},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":207,"y":257,"w":180,"h":472},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Void-Minion-3.png",
+	"frame": {"x":1,"y":472,"w":184,"h":471},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":203,"y":257,"w":184,"h":471},
+	"sourceSize": {"w":612,"h":792}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Void Minion.png",
+	"format": "RGBA8888",
+	"size": {"w":197,"h":1418},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:aa3e8973446bfc79eb8ca45aab8e1b4c:f4164b8f0d1e86b3f71d232c23b534aa:4a72e2e40a359b02e6627e9911867c8e$"
+}
+}

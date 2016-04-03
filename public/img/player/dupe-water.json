@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "Floating-Witch-Lady-Sprite-Water-1.png",
+	"frame": {"x":1,"y":1,"w":561,"h":888},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":561,"h":888},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Water-2.png",
+	"frame": {"x":564,"y":1,"w":528,"h":879},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":18,"y":4,"w":528,"h":879},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Water-3.png",
+	"frame": {"x":1094,"y":1,"w":479,"h":864},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":26,"y":9,"w":479,"h":864},
+	"sourceSize": {"w":565,"h":888}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Floating Witch Lady Water.png",
+	"format": "RGBA8888",
+	"size": {"w":1574,"h":890},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:a196815a30e31e610cf48f19bac55e44:ed01da383b20030a8181b20c58c95e51:ed5227b6d4daf7fe7df597e75af74746$"
+}
+}

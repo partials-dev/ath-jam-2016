@@ -26,7 +26,7 @@ create = (game) ->
       worshipper.animations.add 'cast', [3, 1], 5, false
   worshippers.pivot.set 0, 0
   worshippers.scale.set 100, 100
-  worshippers.position.set 170, 160
+  worshippers.position.set 0.3 * game.width, 0.8 * game.height
 
 move = (i) ->
   angle = i * 360

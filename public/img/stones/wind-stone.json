@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "Wind-Tombstone-Big-Flash.png",
+	"frame": {"x":1,"y":1,"w":267,"h":549},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":171,"y":0,"w":267,"h":549},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Wind-Tombstone-No-Mana.png",
+	"frame": {"x":270,"y":1,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Wind-Tombstone-Small-Flash.png",
+	"frame": {"x":1,"y":552,"w":173,"h":317},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":212,"y":232,"w":173,"h":317},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Wind-Tombstone.png",
+	"frame": {"x":270,"y":310,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Wind Tombstone.png",
+	"format": "RGBA8888",
+	"size": {"w":402,"h":870},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:709d2d03353334ab7f31fa866fe2ee0c:1a0cd6c170fc9c21aad6259e284ab8ab:29121638c514127352b6721c7cf97c9a$"
+}
+}

@@ -24,12 +24,13 @@ cast = ->
     music.cast.fail()
 
 load = (game) ->
-  game.load.spritesheet 'player', 'img/green.bmp', 1, 1
+
+  game.load.atlasJSONArray('player', 'img/player/player.png', 'img/player/player.json')
 
 create = (game) ->
   # sprite
-  player = game.add.sprite 200, 200, 'player'
-  player.scale.set 50, 50
+  player = game.add.sprite 0.3 * game.width, 0.8 * game.height, 'player'
+  #player.scale.set 50, 50
   
   health.create game
   mana.create game

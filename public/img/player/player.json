@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "Floating-Witch-Lady-Sprite-Fire-1.png",
+	"frame": {"x":1,"y":1,"w":561,"h":888},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":561,"h":888},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Fire-2.png",
+	"frame": {"x":564,"y":1,"w":528,"h":879},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":18,"y":4,"w":528,"h":879},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Fire-3.png",
+	"frame": {"x":1094,"y":1,"w":488,"h":862},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":17,"y":9,"w":488,"h":862},
+	"sourceSize": {"w":565,"h":888}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Floating Witch Lady.png",
+	"format": "RGBA8888",
+	"size": {"w":1583,"h":890},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:1acf34e596174c756e33b21712d1313b:310f324e0c30438c9ba6ecd497521350:5ca0b195d6514c497bdca6a02a8e65df$"
+}
+}

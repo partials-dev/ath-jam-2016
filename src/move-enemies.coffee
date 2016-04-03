@@ -1,7 +1,7 @@
 game = null
 
 # enemy lane params
-pathIsVisible = 1
+pathIsVisible = 0
 
 path1 = null
 path2 = null

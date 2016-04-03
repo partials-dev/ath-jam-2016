@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "Water-Tombstone-Big-Flash.png",
+	"frame": {"x":1,"y":1,"w":266,"h":549},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":172,"y":0,"w":266,"h":549},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Water-Tombstone-No-Mana.png",
+	"frame": {"x":1,"y":552,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Water-Tombstone-Small-Flash.png",
+	"frame": {"x":269,"y":1,"w":161,"h":377},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":219,"y":172,"w":161,"h":377},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Water-Tombstone.png",
+	"frame": {"x":134,"y":552,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Water Tombstone.png",
+	"format": "RGBA8888",
+	"size": {"w":431,"h":860},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:cacce3bd2cb3810745f9358a008d9244:823efc2db49b7db3a4dfea1484a8cd1d:4e1a275e41b60fd2a0dfff338da516b6$"
+}
+}

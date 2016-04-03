@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "Floating-Witch-Lady-Sprite-Earth-1.png",
+	"frame": {"x":1,"y":1,"w":565,"h":888},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":565,"h":888},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Earth-2.png",
+	"frame": {"x":568,"y":1,"w":565,"h":879},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":4,"w":565,"h":879},
+	"sourceSize": {"w":565,"h":888}
+},
+{
+	"filename": "Floating-Witch-Lady-Sprite-Earth-3.png",
+	"frame": {"x":1135,"y":1,"w":552,"h":862},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":9,"w":552,"h":862},
+	"sourceSize": {"w":565,"h":888}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Floating Witch Lady Earth.png",
+	"format": "RGBA8888",
+	"size": {"w":1688,"h":890},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:e7162ca8cdc8890ff8b52414c3c14f09:6759e473dcd220a9e687575a9f2a4336:cbecdef168210a515b68c7aa0ca0cb9e$"
+}
+}

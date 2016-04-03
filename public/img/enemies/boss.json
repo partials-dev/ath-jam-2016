@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "Void-Boss-1.png",
+	"frame": {"x":1,"y":1,"w":596,"h":622},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":596,"h":622},
+	"sourceSize": {"w":596,"h":622}
+},
+{
+	"filename": "Void-Boss-2.png",
+	"frame": {"x":599,"y":1,"w":596,"h":622},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":596,"h":622},
+	"sourceSize": {"w":596,"h":622}
+},
+{
+	"filename": "Void-Boss-3.png",
+	"frame": {"x":1197,"y":1,"w":596,"h":622},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":596,"h":622},
+	"sourceSize": {"w":596,"h":622}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Void Boss.png",
+	"format": "RGBA8888",
+	"size": {"w":1794,"h":624},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:814cee626e7a825cbd0f2c8aa7878903:b78953cf8093a6c348341307c78953bf:b14a48c837c1e4d5b740b032b43f9e2d$"
+}
+}

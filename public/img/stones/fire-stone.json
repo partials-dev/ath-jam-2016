@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "Fire-Tombstone-Big-Flash.png",
+	"frame": {"x":1,"y":1,"w":266,"h":548},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":171,"y":1,"w":266,"h":548},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Fire-Tombstone-No-Mana.png",
+	"frame": {"x":269,"y":1,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Fire-Tombstone-Small-Flash.png",
+	"frame": {"x":1,"y":551,"w":189,"h":373},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":196,"y":176,"w":189,"h":373},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Fire-Tombstone.png",
+	"frame": {"x":269,"y":310,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Fire Tombstone.png",
+	"format": "RGBA8888",
+	"size": {"w":401,"h":925},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:2a47ee74f0c7a8d1a2ad4b131695705e:9ba57cc5b9e561f148d5a6585603881d:eed27736620e4c5e4abf8fd397a15b73$"
+}
+}

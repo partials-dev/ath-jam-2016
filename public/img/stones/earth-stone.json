@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "Earth-Tombstone-Big-Flash.png",
+	"frame": {"x":1,"y":1,"w":266,"h":545},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":171,"y":4,"w":266,"h":545},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Earth-Tombstone-No-Mana.png",
+	"frame": {"x":269,"y":1,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Earth-Tombstone-Small-Flash.png",
+	"frame": {"x":1,"y":548,"w":215,"h":315},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":187,"y":234,"w":215,"h":315},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Earth-Tombstone.png",
+	"frame": {"x":269,"y":310,"w":131,"h":307},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":240,"y":242,"w":131,"h":307},
+	"sourceSize": {"w":612,"h":792}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Earth Tombstone.png",
+	"format": "RGBA8888",
+	"size": {"w":401,"h":864},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:fe56519b8df6cbb385321248f416cb78:91b6ed35f41023a0f4671ae5343dd6ac:d15beac4015de31206163a8d8763acea$"
+}
+}

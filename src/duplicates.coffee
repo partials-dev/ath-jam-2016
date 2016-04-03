@@ -13,10 +13,10 @@ game = null
 summonSignal = new Phaser.Signal()
 
 load = (game) ->
-  game.load.spritesheet 'duplicate.fire', 'img/red.bmp', 1, 1
-  game.load.spritesheet 'duplicate.water', 'img/blue.bmp', 1, 1
-  game.load.spritesheet 'duplicate.earth', 'img/green.bmp', 1, 1
-  game.load.spritesheet 'duplicate.wind', 'img/silver.bmp', 1, 1
+  game.load.atlasJSONArray('dulplicate.fire', 'img/player/dupe-fire.png', 'img/player/dupe-fire.json')
+  game.load.atlasJSONArray('dulplicate.water', 'img/player/dupe-water.png', 'img/player/dupe-water.json')
+  game.load.atlasJSONArray('dulplicate.earth', 'img/player/dupe-earth.png', 'img/player/dupe-earth.json')
+  game.load.atlasJSONArray('dulplicate.wind', 'img/player/dupe-wind.png', 'img/player/dupe-wind.json')
 
 duplicates = null
 create = (g) ->
@@ -51,7 +51,7 @@ summon = (element) ->
 
 spawn = (element, position) ->
   dup = duplicates.create position.x, position.y, "duplicate.#{element}", 1
-  dup.scale.set 50, 50
+  #dup.scale.set 50, 50
 
 module.exports =
   cast: cast

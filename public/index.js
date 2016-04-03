@@ -12,10 +12,10 @@ game = null;
 summonSignal = new Phaser.Signal();
 
 load = function(game) {
-  game.load.spritesheet('duplicate.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('duplicate.water', 'img/blue.bmp', 1, 1);
-  game.load.spritesheet('duplicate.earth', 'img/green.bmp', 1, 1);
-  return game.load.spritesheet('duplicate.wind', 'img/silver.bmp', 1, 1);
+  game.load.atlasJSONArray('dulplicate.fire', 'img/player/dupe-fire.png', 'img/player/dupe-fire.json');
+  game.load.atlasJSONArray('dulplicate.water', 'img/player/dupe-water.png', 'img/player/dupe-water.json');
+  game.load.atlasJSONArray('dulplicate.earth', 'img/player/dupe-earth.png', 'img/player/dupe-earth.json');
+  return game.load.atlasJSONArray('dulplicate.wind', 'img/player/dupe-wind.png', 'img/player/dupe-wind.json');
 };
 
 duplicates = null;
@@ -60,8 +60,7 @@ summon = function(element) {
 
 spawn = function(element, position) {
   var dup;
-  dup = duplicates.create(position.x, position.y, "duplicate." + element, 1);
-  return dup.scale.set(50, 50);
+  return dup = duplicates.create(position.x, position.y, "duplicate." + element, 1);
 };
 
 module.exports = {
@@ -82,10 +81,8 @@ game = null;
 enemies = null;
 
 load = function(game) {
-  game.load.spritesheet('enemy.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('enemy.water', 'img/blue.bmp', 1, 1);
-  game.load.spritesheet('enemy.wind', 'img/silver.bmp', 1, 1);
-  return game.load.spritesheet('enemy.earth', 'img/green.bmp', 1, 1);
+  game.load.atlasJSONArray('enemy.minion', 'img/enemies/minion.png', 'img/enemies/minion.json');
+  return game.load.atlasJSONArray('enemy.boss', 'img/enemies/boss.png', 'img/enemies/boss.json');
 };
 
 create = function(g) {
@@ -97,7 +94,6 @@ spawn = function(type, path) {
   var enemy, key;
   key = "enemy." + type;
   enemy = enemies.create(path[0].x, path[0].y, key);
-  enemy.scale.set(10, 10);
   enemy.update = createUpdate(enemy, path);
   enemy.speed = 1;
   return enemy;
@@ -588,7 +584,7 @@ var create, createUpdate, game, load, path1, path2, pathIsVisible, plot, scaleLa
 
 game = null;
 
-pathIsVisible = 1;
+pathIsVisible = 0;
 
 path1 = null;
 
@@ -818,13 +814,12 @@ cast = function() {
 };
 
 load = function(game) {
-  return game.load.spritesheet('player', 'img/green.bmp', 1, 1);
+  return game.load.atlasJSONArray('player', 'img/player/player.png', 'img/player/player.json');
 };
 
 create = function(game) {
   var space;
-  player = game.add.sprite(200, 200, 'player');
-  player.scale.set(50, 50);
+  player = game.add.sprite(0.3 * game.width, 0.8 * game.height, 'player');
   health.create(game);
   mana.create(game);
   game.physics.arcade.enable(player);
@@ -972,7 +967,7 @@ spawnPoints = [
   }, {
     location: {
       x: 1.0,
-      y: 0.32
+      y: 0.33
     },
     path: moveEnemies.path2,
     waves: [
@@ -1072,25 +1067,29 @@ metronome = require('./metronome');
 
 params = [
   {
-    x: 0.5,
-    y: 0,
+    x: 0,
+    y: -100,
     sprite: 'standing-stone.fire',
-    img: 'img/fire-stone.bmp'
+    img: 'img/stones/fire-stone.png',
+    json: 'img/stones/fire-stone.json'
   }, {
-    x: 1,
-    y: 0.5,
+    x: 100,
+    y: 0,
     sprite: 'standing-stone.wind',
-    img: 'img/metal-stone.bmp'
-  }, {
-    x: 0.5,
-    y: 1,
-    sprite: 'standing-stone.earth',
-    img: 'img/wood-stone.bmp'
+    img: 'img/stones/wind-stone.png',
+    json: 'img/stones/wind-stone.json'
   }, {
     x: 0,
-    y: 0.5,
+    y: 100,
+    sprite: 'standing-stone.earth',
+    img: 'img/stones/earth-stone.png',
+    json: 'img/stones/earth-stone.json'
+  }, {
+    x: -100,
+    y: 0,
     sprite: 'standing-stone.water',
-    img: 'img/water-stone.bmp'
+    img: 'img/stones/water-stone.png',
+    json: 'img/stones/water-stone.json'
   }
 ];
 
@@ -1102,20 +1101,24 @@ standingStones = null;
 
 load = function(game) {
   return params.forEach(function(p) {
-    return game.load.spritesheet(p.sprite, p.img, 8, 8);
+    return game.load.atlasJSONArray(p.sprite, p.img, p.json);
   });
 };
 
 create = function(game) {
+  var center;
   standingStones = game.add.group();
+  center = {
+    x: 0.28 * game.width,
+    y: 0.8 * game.height
+  };
+  console.log(center);
   params.forEach(function(p) {
     var stone;
-    stone = standingStones.create(p.x, p.y, p.sprite, 1);
-    stone.scale.setTo(0.025, 0.025);
+    stone = standingStones.create(center.x + p.x, center.y + p.y, p.sprite, 1);
     stone.animations.add('beat', [2, 1], 4, false);
     return stone.animations.add('cast', [3, 1], 4, false);
   });
-  standingStones.scale.set(300, 300);
   return standingStones;
 };
 
@@ -1188,7 +1191,7 @@ create = function(game) {
   });
   worshippers.pivot.set(0, 0);
   worshippers.scale.set(100, 100);
-  return worshippers.position.set(170, 160);
+  return worshippers.position.set(0.3 * game.width, 0.8 * game.height);
 };
 
 move = function(i) {

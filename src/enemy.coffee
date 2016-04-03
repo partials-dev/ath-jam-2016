@@ -2,10 +2,8 @@ game = null
 enemies = null
 
 load = (game) ->
-  game.load.spritesheet 'enemy.fire', 'img/red.bmp', 1, 1
-  game.load.spritesheet 'enemy.water', 'img/blue.bmp', 1, 1
-  game.load.spritesheet 'enemy.wind', 'img/silver.bmp', 1, 1
-  game.load.spritesheet 'enemy.earth', 'img/green.bmp', 1, 1
+  game.load.atlasJSONArray('enemy.minion', 'img/enemies/minion.png', 'img/enemies/minion.json')
+  game.load.atlasJSONArray('enemy.boss', 'img/enemies/boss.png', 'img/enemies/boss.json')
 
 create = (g) ->
   game = g
@@ -14,7 +12,7 @@ create = (g) ->
 spawn = (type, path) ->
   key = "enemy.#{type}"
   enemy = enemies.create path[0].x, path[0].y, key
-  enemy.scale.set 10, 10
+  #enemy.scale.set 10, 10
   enemy.update = createUpdate enemy, path
   enemy.speed = 1
   enemy
