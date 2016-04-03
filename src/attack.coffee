@@ -1,5 +1,6 @@
 attacks = null
 enemyModule = require './enemy'
+music = require './music'
 
 load = (game) ->
   game.load.spritesheet 'attack.fire', 'img/red.bmp', 1, 1
@@ -21,6 +22,7 @@ nextFire =
 attack = (attacker, enemy, element) ->
   return unless game.time.time > attacker.nextFire
 
+  music.attack(element)
   sprite = attacks.create attacker.body.center.x, attacker.body.center.y, "attack.#{element}"
   sprite.element = element
   attacker.nextFire = game.time.time + nextFire[element]
@@ -35,7 +37,6 @@ attack = (attacker, enemy, element) ->
     earthAttack attacker.attackRange
     sprite.events.onAnimationComplete.add ->
       sprite.destroy()
-
 earthAttack = (range) ->
   overlapHandler = (enemy, range) ->
     enemy.hitBy 'earth'

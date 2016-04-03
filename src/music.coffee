@@ -4,10 +4,14 @@ game = null
 duplicates = {}
 cast = {}
 background = null
+kick = null
+wind = null
+attacks = {}
 
 create = (g) ->
   game = g
   background = game.add.audio 'background'
+  kick = game.add.audio 'kick'
 
   # duplicates
   duplicates.earth = []
@@ -33,6 +37,10 @@ create = (g) ->
   duplicates.water[8] = game.add.audio "duplicate.water.8", 0
   duplicates.water[9] = game.add.audio "duplicate.water.9", 0
   duplicates.water[10] = game.add.audio "duplicate.water.10", 0
+
+  wind = game.add.audio 'duplicate.wind', 0
+  ['water', 'wind', 'fire', 'earth'].forEach (element) ->
+    attacks[element] = game.add.audio "attack.#{element}"
 
   # casting
   cast.succeed = game.add.audio 'cast.succeed'
@@ -106,11 +114,24 @@ getSound = (element, beat) ->
   currentMeasure[element] = currentMeasure[element] % 16
   sound
 
+bgBeat = 0
+bgLength = 4 * 64
+windBeat = 0
+windLength = 4 * 16
 onBeat = (beat) ->
-  getSound(element, beat).play() for element in ['water', 'earth', 'fire']
+  background.play() if bgBeat is 0
+  if beat is 0
+    getSound(element, beat).play() for element in ['water', 'earth', 'fire']
+  kick.play() if beat is 0
+  wind.play() if windBeat is 0
+  bgBeat++
+  bgBeat = bgBeat % bgLength
+  windBeat++
+  windBeat = bgBeat % windBeat
 
 load = (game) ->
   game.load.audio 'background', 'sound/bg.wav'
+  game.load.audio 'kick', 'sound/kick.wav'
 
   # duplicates
   game.load.audio 'duplicate.fire.1', 'sound/Fire/Fire 1.wav'
@@ -134,13 +155,28 @@ load = (game) ->
   game.load.audio 'duplicate.water.9', 'sound/Water/Water 9.wav'
   game.load.audio 'duplicate.water.10', 'sound/Water/Water 10.wav'
 
+  game.load.audio 'duplicate.wind', 'sound/wind.wav'
+
   # casting
   game.load.audio 'cast.succeed', 'sound/cast.mp3'
-  game.load.audio 'cast.fail', 'sound/cast-fail.mp3'
+  game.load.audio 'cast.fail', 'sound/Miss.wav'
+
+  game.load.audio 'attack.fire', 'sound/Attacks/Fire Attack.wav'
+  game.load.audio 'attack.water', 'sound/Attacks/Water Attack.wav'
+  game.load.audio 'attack.earth', 'sound/Attacks/Earth Attack.wav'
+  game.load.audio 'attack.wind', 'sound/Attacks/Wind Attack.wav'
+
+alreadyPlaying =
+  fire: false
+  water: false
+  wind: false
+  earth: false
 
 duplicateSummoned = (element) ->
-  duplicates[element].forEach (sound) ->
-    sound.fadeIn 50
+  unless alreadyPlaying[element]
+    duplicates[element].forEach (sound) ->
+      sound.fadeIn 500
+    alreadyPlaying[element] = true
 
 castSucceed = ->
   cast.succeed.play()
@@ -156,3 +192,4 @@ module.exports =
   cast:
     succeed: castSucceed
     fail: castFail
+  attacks: (element) -> attacks[element]

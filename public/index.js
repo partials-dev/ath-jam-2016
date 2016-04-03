@@ -1,9 +1,11 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var attack, attacks, create, earthAttack, enemyModule, game, load, nextFire, update;
+var attack, attacks, create, earthAttack, enemyModule, game, load, music, nextFire, update;
 
 attacks = null;
 
 enemyModule = require('./enemy');
+
+music = require('./music');
 
 load = function(game) {
   game.load.spritesheet('attack.fire', 'img/red.bmp', 1, 1);
@@ -31,6 +33,7 @@ attack = function(attacker, enemy, element) {
   if (!(game.time.time > attacker.nextFire)) {
     return;
   }
+  music.attack(element);
   sprite = attacks.create(attacker.body.center.x, attacker.body.center.y, "attack." + element);
   sprite.element = element;
   attacker.nextFire = game.time.time + nextFire[element];
@@ -78,7 +81,7 @@ module.exports = {
 };
 
 
-},{"./enemy":3}],2:[function(require,module,exports){
+},{"./enemy":3,"./music":10}],2:[function(require,module,exports){
 var attack, attackRanges, cast, create, currentMeasure, duplicates, enemyModule, game, load, measureMoved, moveMeasure, onBeat, previousMeasure, spawn, standingStones, summon, summonSignal, update;
 
 standingStones = require('./standing-stones');
@@ -186,11 +189,15 @@ module.exports = {
 
 
 },{"./attack":1,"./enemy":3,"./standing-stones":14}],3:[function(require,module,exports){
-var FREEZE_DURATION, create, createUpdate, damageByElement, enemies, game, healthByType, load, spawn, updateEnemies;
+var FREEZE_DURATION, create, createUpdate, damageByElement, enemies, game, health, healthByType, load, mana, spawn, updateEnemies;
+
+mana = require('./mana');
 
 game = null;
 
 enemies = null;
+
+health = require('./health');
 
 healthByType = {
   minion: 5,
@@ -233,7 +240,8 @@ spawn = function(type, path) {
       enemy.unfreezeTime = game.time.time + FREEZE_DURATION;
     }
     if (enemy.health <= 0) {
-      return enemy.kill();
+      enemy.kill();
+      return mana.spend(-10);
     }
   };
   return enemy;
@@ -270,7 +278,7 @@ createUpdate = function(enemy, path) {
     } else if (enemyAlive) {
       enemyAlive = false;
       enemy.destroy();
-      return enemy.damage;
+      return health.spend(enemy.damage);
     }
   };
 };
@@ -286,7 +294,7 @@ module.exports = {
 };
 
 
-},{}],4:[function(require,module,exports){
+},{"./health":4,"./mana":6}],4:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_health, create, currentHealth, healthBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -849,7 +857,7 @@ module.exports = {
 
 
 },{}],10:[function(require,module,exports){
-var background, cast, castFail, castSucceed, create, currentMeasure, duplicateSummoned, duplicates, game, getSound, load, metronome, onBeat, patterns;
+var alreadyPlaying, attacks, background, bgBeat, bgLength, cast, castFail, castSucceed, create, currentMeasure, duplicateSummoned, duplicates, game, getSound, kick, load, metronome, onBeat, patterns, wind, windBeat, windLength;
 
 metronome = require('./metronome');
 
@@ -861,9 +869,16 @@ cast = {};
 
 background = null;
 
+kick = null;
+
+wind = null;
+
+attacks = {};
+
 create = function(g) {
   game = g;
   background = game.add.audio('background');
+  kick = game.add.audio('kick');
   duplicates.earth = [];
   duplicates.earth[1] = game.add.audio("duplicate.earth.1", 0);
   duplicates.earth[2] = game.add.audio("duplicate.earth.2", 0);
@@ -885,6 +900,10 @@ create = function(g) {
   duplicates.water[8] = game.add.audio("duplicate.water.8", 0);
   duplicates.water[9] = game.add.audio("duplicate.water.9", 0);
   duplicates.water[10] = game.add.audio("duplicate.water.10", 0);
+  wind = game.add.audio('duplicate.wind', 0);
+  ['water', 'wind', 'fire', 'earth'].forEach(function(element) {
+    return attacks[element] = game.add.audio("attack." + element);
+  });
   cast.succeed = game.add.audio('cast.succeed');
   return cast.fail = game.add.audio('cast.fail');
 };
@@ -910,19 +929,41 @@ getSound = function(element, beat) {
   return sound;
 };
 
+bgBeat = 0;
+
+bgLength = 4 * 64;
+
+windBeat = 0;
+
+windLength = 4 * 16;
+
 onBeat = function(beat) {
-  var element, i, len, ref, results;
-  ref = ['water', 'earth', 'fire'];
-  results = [];
-  for (i = 0, len = ref.length; i < len; i++) {
-    element = ref[i];
-    results.push(getSound(element, beat).play());
+  var element, i, len, ref;
+  if (bgBeat === 0) {
+    background.play();
   }
-  return results;
+  if (beat === 0) {
+    ref = ['water', 'earth', 'fire'];
+    for (i = 0, len = ref.length; i < len; i++) {
+      element = ref[i];
+      getSound(element, beat).play();
+    }
+  }
+  if (beat === 0) {
+    kick.play();
+  }
+  if (windBeat === 0) {
+    wind.play();
+  }
+  bgBeat++;
+  bgBeat = bgBeat % bgLength;
+  windBeat++;
+  return windBeat = bgBeat % windBeat;
 };
 
 load = function(game) {
   game.load.audio('background', 'sound/bg.wav');
+  game.load.audio('kick', 'sound/kick.wav');
   game.load.audio('duplicate.fire.1', 'sound/Fire/Fire 1.wav');
   game.load.audio('duplicate.fire.2', 'sound/Fire/Fire 2.wav');
   game.load.audio('duplicate.fire.3', 'sound/Fire/Fire 3.wav');
@@ -941,14 +982,29 @@ load = function(game) {
   game.load.audio('duplicate.water.8', 'sound/Water/Water 8.wav');
   game.load.audio('duplicate.water.9', 'sound/Water/Water 9.wav');
   game.load.audio('duplicate.water.10', 'sound/Water/Water 10.wav');
+  game.load.audio('duplicate.wind', 'sound/wind.wav');
   game.load.audio('cast.succeed', 'sound/cast.mp3');
-  return game.load.audio('cast.fail', 'sound/cast-fail.mp3');
+  game.load.audio('cast.fail', 'sound/Miss.wav');
+  game.load.audio('attack.fire', 'sound/Attacks/Fire Attack.wav');
+  game.load.audio('attack.water', 'sound/Attacks/Water Attack.wav');
+  game.load.audio('attack.earth', 'sound/Attacks/Earth Attack.wav');
+  return game.load.audio('attack.wind', 'sound/Attacks/Wind Attack.wav');
+};
+
+alreadyPlaying = {
+  fire: false,
+  water: false,
+  wind: false,
+  earth: false
 };
 
 duplicateSummoned = function(element) {
-  return duplicates[element].forEach(function(sound) {
-    return sound.fadeIn(50);
-  });
+  if (!alreadyPlaying[element]) {
+    duplicates[element].forEach(function(sound) {
+      return sound.fadeIn(500);
+    });
+    return alreadyPlaying[element] = true;
+  }
 };
 
 castSucceed = function() {
@@ -967,6 +1023,9 @@ module.exports = {
   cast: {
     succeed: castSucceed,
     fail: castFail
+  },
+  attacks: function(element) {
+    return attacks[element];
   }
 };
 

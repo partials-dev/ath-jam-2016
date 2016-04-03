@@ -1,5 +1,7 @@
+mana = require './mana'
 game = null
 enemies = null
+health = require './health'
 
 healthByType =
   minion: 5
@@ -36,7 +38,9 @@ spawn = (type, path) ->
     console.log "health: #{enemy.health}"
     if element is 'water'
       enemy.unfreezeTime = game.time.time + FREEZE_DURATION
-    enemy.kill() if enemy.health <= 0
+    if enemy.health <= 0
+      enemy.kill()
+      mana.spend -10
   enemy
 
 updateEnemies = ->
@@ -63,7 +67,7 @@ createUpdate = (enemy, path) ->
     else if enemyAlive
       enemyAlive = false
       enemy.destroy()
-      enemy.damage
+      health.spend enemy.damage
 
 module.exports =
   load: load
