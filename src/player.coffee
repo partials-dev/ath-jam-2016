@@ -31,6 +31,7 @@ create = (game) ->
   # sprite
   player = game.add.sprite 0.3 * game.width, 0.8 * game.height, 'player'
   player.anchor.set 0.5
+  player.scale.set 0.1, 0.1
 
   health.create game
   mana.create game
@@ -41,10 +42,12 @@ create = (game) ->
   player.body.collideWorldBounds = true
 
   # animation
-  player.animations.add 'left', [0, 1, 2], 10, true
-  player.animations.add 'right', [3, 4, 5], 10, true
-  player.animations.add 'up', [0, 1, 2], 10, true
-  player.animations.add 'down', [0, 1, 2], 10, true
+  player.animations.add 'left', [0, 1], 10, true
+  player.animations.add 'right', [0, 1], 10, true
+  player.animations.add 'up', [0, 1], 10, true
+  player.animations.add 'down', [0, 1], 10, true
+  #player.animations.add 'resting', [0, 1, 2], 10, true
+  #player.animations.play 'resting'
 
   player.animations.add 'summon.fire', [3, 4, 5], 10, false
   player.animations.add 'summon.water', [3, 4, 5], 10, false

@@ -219,6 +219,7 @@ spawn = function(type, path) {
   var enemy, key;
   key = "enemy." + type;
   enemy = enemies.create(path[0].x, path[0].y, key);
+  enemy.scale.set(0.2, 0.2);
   enemy.update = createUpdate(enemy, path);
   enemy.speed = 1;
   enemy.health = healthByType[type];
@@ -985,15 +986,16 @@ create = function(game) {
   var space;
   player = game.add.sprite(0.3 * game.width, 0.8 * game.height, 'player');
   player.anchor.set(0.5);
+  player.scale.set(0.1, 0.1);
   health.create(game);
   mana.create(game);
   game.physics.arcade.enable(player);
   player.body.bounce.y = 0.2;
   player.body.collideWorldBounds = true;
-  player.animations.add('left', [0, 1, 2], 10, true);
-  player.animations.add('right', [3, 4, 5], 10, true);
-  player.animations.add('up', [0, 1, 2], 10, true);
-  player.animations.add('down', [0, 1, 2], 10, true);
+  player.animations.add('left', [0, 1], 10, true);
+  player.animations.add('right', [0, 1], 10, true);
+  player.animations.add('up', [0, 1], 10, true);
+  player.animations.add('down', [0, 1], 10, true);
   player.animations.add('summon.fire', [3, 4, 5], 10, false);
   player.animations.add('summon.water', [3, 4, 5], 10, false);
   player.animations.add('summon.wind', [3, 4, 5], 10, false);
@@ -1272,12 +1274,13 @@ create = function(game) {
   standingStones = game.add.group();
   center = {
     x: 0.28 * game.width,
-    y: 0.8 * game.height
+    y: 0.7 * game.height
   };
   console.log(center);
   params.forEach(function(p) {
     var stone;
     stone = standingStones.create(center.x + p.x, center.y + p.y, p.sprite, 1);
+    stone.scale.setTo(0.2, 0.2);
     stone.animations.add('beat', [2, 1], 4, false);
     return stone.animations.add('cast', [3, 1], 4, false);
   });

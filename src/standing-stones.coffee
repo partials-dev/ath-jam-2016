@@ -37,14 +37,14 @@ create = (game) ->
   standingStones = game.add.group()
   center =
     x: 0.28 * game.width
-    y: 0.8 * game.height
+    y: 0.7 * game.height
   console.log center
   params.forEach (p) ->
     stone = standingStones.create center.x + p.x, center.y + p.y, p.sprite, 1
-    #stone.scale.setTo 10, 10
+    stone.scale.setTo 0.2, 0.2
     stone.animations.add 'beat', [2, 1], 4, false
     stone.animations.add 'cast', [3, 1], 4, false
-  #standingStones.scale.set 300, 300
+  #standingStones.scale.set 0.2, 0.2
   standingStones
 
 onBeat = (beat) ->
