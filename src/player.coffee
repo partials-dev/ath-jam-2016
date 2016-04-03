@@ -60,7 +60,7 @@ create = (game) ->
   space.onDown.add cast
   midi.signal.add (pitch) ->
     switch pitch
-      when 48 then cast()
+      when 36 then cast()
         
 movementScheme =
   left:

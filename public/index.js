@@ -6,10 +6,10 @@ attacks = null;
 enemyModule = require('./enemy');
 
 load = function(game) {
-  game.load.spritesheet('attack.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('attack.water', 'img/blue.bmp', 1, 1);
-  game.load.spritesheet('attack.earth', 'img/green.bmp', 1, 1);
-  return game.load.spritesheet('attack.wind', 'img/silver.bmp', 1, 1);
+  game.load.atlasJSONArray('attack.earth', 'img/particles/earth-shot.png', 'img/particles/earth-shot.json');
+  game.load.spritesheet('attack.fire', 'img/particles/fire-shot.png', 1, 1);
+  game.load.spritesheet('attack.water', 'img/particles/water-shot.png', 1, 1);
+  return game.load.spritesheet('attack.wind', 'img/particles/wind-shot.png', 1, 1);
 };
 
 game = null;
@@ -263,8 +263,8 @@ createUpdate = function(enemy, path) {
       return;
     }
     if (pi < path.length) {
-      enemy.x = path[pi].x;
-      enemy.y = path[pi].y;
+      enemy.x = path[pi].x - 20;
+      enemy.y = path[pi].y - 50;
       pi += enemy.speed;
       return void 0;
     } else if (enemyAlive) {
@@ -1044,7 +1044,7 @@ create = function(game) {
   space.onDown.add(cast);
   return midi.signal.add(function(pitch) {
     switch (pitch) {
-      case 48:
+      case 36:
         return cast();
     }
   });

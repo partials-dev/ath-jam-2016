@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "Earth-Hit-1.png",
+	"frame": {"x":698,"y":226,"w":69,"h":57},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":243,"y":395,"w":69,"h":57},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Earth-Hit-2.png",
+	"frame": {"x":569,"y":226,"w":127,"h":89},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":214,"y":379,"w":127,"h":89},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Earth-Hit-3.png",
+	"frame": {"x":569,"y":1,"w":376,"h":223},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":90,"y":312,"w":376,"h":223},
+	"sourceSize": {"w":612,"h":792}
+},
+{
+	"filename": "Earth-Hit-4.png",
+	"frame": {"x":1,"y":1,"w":566,"h":331},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":258,"w":566,"h":331},
+	"sourceSize": {"w":612,"h":792}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "Earth Shot.png",
+	"format": "RGBA8888",
+	"size": {"w":946,"h":333},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:6e6ec0cd1d203245edd8d99cd06b1186:2fb47ec1d3a9a124aa189ca4b70673a2:84250b9504e9e5f01b5d2fc1b452df68$"
+}
+}
