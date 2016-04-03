@@ -6,6 +6,7 @@ player = require './player'
 #midi = require './midi'
 music = require './music'
 duplicates = require './duplicates'
+moveEnemies = require './move-enemies'
 
 GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
@@ -20,12 +21,16 @@ preload = ->
 
   # load standing stones
   standingStones.load game
+
   # load player
   game.load.spritesheet 'player', 'img/green.bmp', 1, 1
 
   # load duplicates
   duplicates.load game
 
+  # load enemies
+  game.load.spritesheet 'enemy', 'img/blue.bmp', 1, 1
+  
   # load audio
   music.load game
 
@@ -39,6 +44,7 @@ create = ->
   met = metronome.create game
   player.create game
   duplicates.create game
+  moveEnemies.create game
 
   # wire up event listeners
   met.add standingStones.onBeat
@@ -52,6 +58,7 @@ create = ->
 update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()
+  moveEnemies.update()
 
 render = ->
 
