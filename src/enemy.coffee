@@ -60,8 +60,8 @@ createUpdate = (enemy, path) ->
       i = i % 6
     return unless i is 0
     if pi < path.length
-      enemy.x = path[pi].x
-      enemy.y = path[pi].y
+      enemy.x = path[pi].x - 20
+      enemy.y = path[pi].y - 50
       pi += enemy.speed
       undefined
     else if enemyAlive

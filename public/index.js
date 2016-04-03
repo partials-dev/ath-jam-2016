@@ -8,10 +8,10 @@ enemyModule = require('./enemy');
 music = require('./music');
 
 load = function(game) {
-  game.load.spritesheet('attack.fire', 'img/red.bmp', 1, 1);
-  game.load.spritesheet('attack.water', 'img/blue.bmp', 1, 1);
-  game.load.spritesheet('attack.earth', 'img/green.bmp', 1, 1);
-  return game.load.spritesheet('attack.wind', 'img/silver.bmp', 1, 1);
+  game.load.atlasJSONArray('attack.earth', 'img/particles/earth-shot.png', 'img/particles/earth-shot.json');
+  game.load.spritesheet('attack.fire', 'img/particles/fire-shot.png', 1, 1);
+  game.load.spritesheet('attack.water', 'img/particles/water-shot.png', 1, 1);
+  return game.load.spritesheet('attack.wind', 'img/particles/wind-shot.png', 1, 1);
 };
 
 game = null;
@@ -271,8 +271,8 @@ createUpdate = function(enemy, path) {
       return;
     }
     if (pi < path.length) {
-      enemy.x = path[pi].x;
-      enemy.y = path[pi].y;
+      enemy.x = path[pi].x - 20;
+      enemy.y = path[pi].y - 50;
       pi += enemy.speed;
       return void 0;
     } else if (enemyAlive) {
@@ -1103,7 +1103,7 @@ create = function(game) {
   space.onDown.add(cast);
   return midi.signal.add(function(pitch) {
     switch (pitch) {
-      case 48:
+      case 36:
         return cast();
     }
   });
@@ -1215,14 +1215,19 @@ spawnPoints = [
     path: moveEnemies.path1,
     waves: [
       {
-        time: 0,
+        time: 1000 * 10,
         enemies: {
           minion: 5
         }
       }, {
-        time: 1000 * 20,
+        time: 1000 * 40,
         enemies: {
-          minion: 3
+          minion: 8
+        }
+      }, {
+        time: 1000 * 60,
+        enemies: {
+          minion: 10
         }
       }
     ]
@@ -1234,14 +1239,19 @@ spawnPoints = [
     path: moveEnemies.path2,
     waves: [
       {
-        time: 1000 * 10,
+        time: 1000 * 20,
         enemies: {
           minion: 5
         }
       }, {
-        time: 1000 * 20,
+        time: 1000 * 40,
         enemies: {
-          minion: 10,
+          minion: 8
+        }
+      }, {
+        time: 1000 * 60,
+        enemies: {
+          minion: 5,
           boss: 1
         }
       }
@@ -1253,7 +1263,7 @@ game = null;
 
 enemies = null;
 
-SPAWN_DELAY = 500;
+SPAWN_DELAY = 750;
 
 load = function(game) {
   return enemy.load(game);

@@ -3,10 +3,10 @@ enemyModule = require './enemy'
 music = require './music'
 
 load = (game) ->
-  game.load.spritesheet 'attack.fire', 'img/red.bmp', 1, 1
-  game.load.spritesheet 'attack.water', 'img/blue.bmp', 1, 1
-  game.load.spritesheet 'attack.earth', 'img/green.bmp', 1, 1
-  game.load.spritesheet 'attack.wind', 'img/silver.bmp', 1, 1
+  game.load.atlasJSONArray 'attack.earth', 'img/particles/earth-shot.png', 'img/particles/earth-shot.json'
+  game.load.spritesheet 'attack.fire', 'img/particles/fire-shot.png', 1, 1
+  game.load.spritesheet 'attack.water', 'img/particles/water-shot.png', 1, 1
+  game.load.spritesheet 'attack.wind', 'img/particles/wind-shot.png', 1, 1
 
 game = null
 create = (g) ->
