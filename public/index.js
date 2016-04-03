@@ -211,6 +211,7 @@ GAME_WIDTH = $(window).width();
 GAME_HEIGHT = $(window).height();
 
 preload = function() {
+  game.load.image('map', 'img/map1.png', 1, 1);
   game.renderer.renderSession.roundPixels = true;
   Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   worshippers.load(game);
@@ -230,6 +231,9 @@ base = {
 };
 
 create = function() {
+  var background;
+  background = game.add.sprite(0, 0, 'map');
+  background.scale.set(game.width / 5040, game.height / 3960);
   standingStones.create(game);
   worshippers.create(game);
   music.create(game);
@@ -627,12 +631,12 @@ create = function(g, base, s1, s2) {
   bmd1.addToWorld();
   bmd2.addToWorld();
   lane1 = {
-    x: [s1.x, 0.2, 0.3, 0.3, base.x],
-    y: [s1.y, 0.3, 0.4, 0.7, base.y]
+    x: [s1.x, 0.12, 0.3, 0.32, base.x],
+    y: [s1.y, 0.3, 0.35, 0.7, base.y]
   };
   lane2 = {
-    x: [s2.x, 0.3, base.x],
-    y: [s2.y, 0.3, base.y]
+    x: [s2.x, 0.7, 0.35, 0.32, base.x],
+    y: [s2.y, 0.34, 0.34, 0.7, base.y]
   };
   path1 = plot(lane1, bmd1);
   return path2 = plot(lane2, bmd2);
@@ -946,7 +950,7 @@ moveEnemies = require('./move-enemies');
 spawnPoints = [
   {
     location: {
-      x: 0.2,
+      x: 0.11,
       y: 0.0
     },
     path: moveEnemies.path1,
@@ -968,7 +972,7 @@ spawnPoints = [
   }, {
     location: {
       x: 1.0,
-      y: 0.3
+      y: 0.32
     },
     path: moveEnemies.path2,
     waves: [

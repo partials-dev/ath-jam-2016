@@ -21,11 +21,11 @@ create = (g, base, s1, s2) ->
   bmd1.addToWorld()
   bmd2.addToWorld()
   lane1 =
-    x: [s1.x, 0.2, 0.3, 0.3, base.x]
-    y: [s1.y, 0.3, 0.4, 0.7, base.y]
+    x: [s1.x, 0.12, 0.3,  0.32, base.x]
+    y: [s1.y, 0.3,  0.35, 0.7,  base.y]
   lane2 =
-    x: [s2.x, 0.3, base.x]
-    y: [s2.y, 0.3, base.y]
+    x: [s2.x, 0.7,  0.35,  0.32, base.x]
+    y: [s2.y, 0.34, 0.34,  0.7,  base.y]
   path1 = plot lane1, bmd1
   path2 = plot lane2, bmd2
 

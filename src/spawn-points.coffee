@@ -2,7 +2,7 @@ enemy = require './enemy'
 moveEnemies = require './move-enemies'
 
 spawnPoints = [
-    location: x: 0.2, y: 0.0
+    location: x: 0.11, y: 0.0
     path: moveEnemies.path1
     waves: [
         time: 0 #1000 * 10
@@ -16,7 +16,7 @@ spawnPoints = [
           wind: 3
     ]
   ,
-    location: x: 1.0, y: 0.3
+    location: x: 1.0, y: 0.33
     path: moveEnemies.path2
     waves: [
         time: 1000 * 10

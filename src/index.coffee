@@ -13,6 +13,7 @@ GAME_WIDTH = $(window).width()
 GAME_HEIGHT = $(window).height()
 
 preload = ->
+  game.load.image 'map', 'img/map1.png', 1, 1
   game.renderer.renderSession.roundPixels = true
   Phaser.Canvas.setImageRenderingCrisp this.game.canvas
 
@@ -31,6 +32,8 @@ base =
   y: 1
 
 create = ->
+  background = game.add.sprite 0, 0, 'map'
+  background.scale.set game.width / 5040, game.height / 3960
   # create modules
   standingStones.create game
   worshippers.create game
