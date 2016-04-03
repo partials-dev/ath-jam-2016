@@ -6,12 +6,6 @@ pathIsVisible = 1
 path1 = null
 path2 = null
 
-getPath1 = (spawnPosition) ->
-  path1
-
-getPath2 = (spawnPosition) ->
-  path2
-
 scaleLane = (lane) ->
   lane.x = (n * game.width for n in lane.x)
   lane.y = (n * game.height for n in lane.y)
@@ -26,14 +20,14 @@ create = (g, base, s1, s2) ->
   bmd2 = game.add.bitmapData(game.width, game.height)
   bmd1.addToWorld()
   bmd2.addToWorld()
-  path1 =
+  lane1 =
     x: [s1.x, 0.2, 0.3, 0.3, base.x]
     y: [s1.y, 0.3, 0.4, 0.7, base.y]
-  path2 =
+  lane2 =
     x: [s2.x, 0.3, base.x]
     y: [s2.y, 0.3, base.y]
-  plot path1, bmd1
-  plot path2, bmd2
+  path1 = plot lane1, bmd1
+  path2 = plot lane2, bmd2
 
 plot = (lane, bmd)->
   bmd.clear()
@@ -54,7 +48,7 @@ plot = (lane, bmd)->
   while p < lane.x.length
     bmd.rect lane.x[p] - 3, lane.y[p] - 3, 6, 6, "rgba(255, 0, 0, #{pathIsVisible})"
     p++
-  return lane
+  path
 
 createUpdate = (enemy, path) ->
   pi = 0
@@ -68,10 +62,11 @@ createUpdate = (enemy, path) ->
     else if enemyAlive
       enemyAlive = false
       enemy.destroy()
-      console.log "Health: #{health}"
       enemy.damage
 
 module.exports =
   createUpdate: createUpdate
   load: load
   create: create
+  path1: -> path1
+  path2: -> path2

@@ -38,8 +38,8 @@ create = ->
   met = metronome.create game
   player.create game
   duplicates.create game
-  spawnPoints.create game
   moveEnemies.create game, base, spawnPoints.s1, spawnPoints.s2
+  spawnPoints.create game
 
   # wire up event listeners
   met.add standingStones.onBeat
@@ -53,7 +53,7 @@ create = ->
 update = ->
   worshippers.move metronome.progressThroughMeasure()
   player.move()
-  #moveEnemies.update()
+  spawnPoints.update()
 
 render = ->
 

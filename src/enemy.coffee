@@ -14,14 +14,26 @@ create = (g) ->
 spawn = (position, type, path) ->
   key = "enemy.#{type}"
   enemy = enemies.create position.x, position.y, key
-  enemy.scale.set 100, 100
+  enemy.scale.set 10, 10
   enemy.update = createUpdate enemy, path
+  enemy.speed = 1
   enemy
+
+window.spawn = spawn
+
+updateEnemies = ->
+  enemies.forEach (enemy) ->
+    enemy.update()
 
 createUpdate = (enemy, path) ->
   pi = 0
   enemyAlive = true
+  i = 0
   update = ->
+    console.log "Updating enemy"
+    i++
+    i = i % 3
+    return unless i is 0
     if pi < path.length
       enemy.x = path[pi].x
       enemy.y = path[pi].y
@@ -30,10 +42,10 @@ createUpdate = (enemy, path) ->
     else if enemyAlive
       enemyAlive = false
       enemy.destroy()
-      console.log "Health: #{health}"
       enemy.damage
 
 module.exports =
   load: load
   create: create
   spawn: spawn
+  updateEnemies: updateEnemies

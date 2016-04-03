@@ -75,7 +75,7 @@ module.exports = {
 
 
 },{"./standing-stones":12}],2:[function(require,module,exports){
-var create, createUpdate, enemies, game, load, spawn;
+var create, createUpdate, enemies, game, load, spawn, updateEnemies;
 
 game = null;
 
@@ -97,16 +97,32 @@ spawn = function(position, type, path) {
   var enemy, key;
   key = "enemy." + type;
   enemy = enemies.create(position.x, position.y, key);
-  enemy.scale.set(100, 100);
+  enemy.scale.set(10, 10);
   enemy.update = createUpdate(enemy, path);
+  enemy.speed = 1;
   return enemy;
 };
 
+window.spawn = spawn;
+
+updateEnemies = function() {
+  return enemies.forEach(function(enemy) {
+    return enemy.update();
+  });
+};
+
 createUpdate = function(enemy, path) {
-  var enemyAlive, pi, update;
+  var enemyAlive, i, pi, update;
   pi = 0;
   enemyAlive = true;
+  i = 0;
   return update = function() {
+    console.log("Updating enemy");
+    i++;
+    i = i % 3;
+    if (i !== 0) {
+      return;
+    }
     if (pi < path.length) {
       enemy.x = path[pi].x;
       enemy.y = path[pi].y;
@@ -115,7 +131,6 @@ createUpdate = function(enemy, path) {
     } else if (enemyAlive) {
       enemyAlive = false;
       enemy.destroy();
-      console.log("Health: " + health);
       return enemy.damage;
     }
   };
@@ -124,7 +139,8 @@ createUpdate = function(enemy, path) {
 module.exports = {
   load: load,
   create: create,
-  spawn: spawn
+  spawn: spawn,
+  updateEnemies: updateEnemies
 };
 
 
@@ -179,8 +195,8 @@ create = function() {
   met = metronome.create(game);
   player.create(game);
   duplicates.create(game);
-  spawnPoints.create(game);
   moveEnemies.create(game, base, spawnPoints.s1, spawnPoints.s2);
+  spawnPoints.create(game);
   met.add(standingStones.onBeat);
   met.add(music.onBeat);
   met.add(duplicates.onBeat);
@@ -191,7 +207,8 @@ create = function() {
 
 update = function() {
   worshippers.move(metronome.progressThroughMeasure());
-  return player.move();
+  player.move();
+  return spawnPoints.update();
 };
 
 render = function() {};
@@ -528,7 +545,7 @@ module.exports = {
 
 
 },{}],7:[function(require,module,exports){
-var create, createUpdate, game, getPath1, getPath2, load, path1, path2, pathIsVisible, plot, scaleLane;
+var create, createUpdate, game, load, path1, path2, pathIsVisible, plot, scaleLane;
 
 game = null;
 
@@ -537,14 +554,6 @@ pathIsVisible = 1;
 path1 = null;
 
 path2 = null;
-
-getPath1 = function(spawnPosition) {
-  return path1;
-};
-
-getPath2 = function(spawnPosition) {
-  return path2;
-};
 
 scaleLane = function(lane) {
   var n;
@@ -576,22 +585,22 @@ load = function(game) {
 };
 
 create = function(g, base, s1, s2) {
-  var bmd1, bmd2;
+  var bmd1, bmd2, lane1, lane2;
   game = g;
   bmd1 = game.add.bitmapData(game.width, game.height);
   bmd2 = game.add.bitmapData(game.width, game.height);
   bmd1.addToWorld();
   bmd2.addToWorld();
-  path1 = {
+  lane1 = {
     x: [s1.x, 0.2, 0.3, 0.3, base.x],
     y: [s1.y, 0.3, 0.4, 0.7, base.y]
   };
-  path2 = {
+  lane2 = {
     x: [s2.x, 0.3, base.x],
     y: [s2.y, 0.3, base.y]
   };
-  plot(path1, bmd1);
-  return plot(path2, bmd2);
+  path1 = plot(lane1, bmd1);
+  return path2 = plot(lane2, bmd2);
 };
 
 plot = function(lane, bmd) {
@@ -616,7 +625,7 @@ plot = function(lane, bmd) {
     bmd.rect(lane.x[p] - 3, lane.y[p] - 3, 6, 6, "rgba(255, 0, 0, " + pathIsVisible + ")");
     p++;
   }
-  return lane;
+  return path;
 };
 
 createUpdate = function(enemy, path) {
@@ -632,7 +641,6 @@ createUpdate = function(enemy, path) {
     } else if (enemyAlive) {
       enemyAlive = false;
       enemy.destroy();
-      console.log("Health: " + health);
       return enemy.damage;
     }
   };
@@ -641,7 +649,13 @@ createUpdate = function(enemy, path) {
 module.exports = {
   createUpdate: createUpdate,
   load: load,
-  create: create
+  create: create,
+  path1: function() {
+    return path1;
+  },
+  path2: function() {
+    return path2;
+  }
 };
 
 
@@ -884,10 +898,12 @@ module.exports = {
 
 
 },{"./duplicates":1,"./mana":4,"./metronome":5,"./midi":6,"./music":8}],11:[function(require,module,exports){
-var SPAWN_DELAY, create, enemies, enemy, game, load, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints, update,
+var SPAWN_DELAY, create, enemies, enemy, game, load, moveEnemies, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints, update,
   hasProp = {}.hasOwnProperty;
 
 enemy = require('./enemy');
+
+moveEnemies = require('./move-enemies');
 
 spawnPoints = [
   {
@@ -895,9 +911,10 @@ spawnPoints = [
       x: 0.2,
       y: 0.0
     },
+    path: moveEnemies.path1,
     waves: [
       {
-        time: 1000 * 10,
+        time: 0,
         enemies: {
           fire: 5,
           wind: 3
@@ -915,6 +932,7 @@ spawnPoints = [
       x: 1.0,
       y: 0.3
     },
+    path: moveEnemies.path2,
     waves: [
       {
         time: 1000 * 10,
@@ -937,7 +955,7 @@ game = null;
 
 enemies = null;
 
-SPAWN_DELAY = 200;
+SPAWN_DELAY = 500;
 
 load = function(game) {
   return enemy.load(game);
@@ -969,6 +987,8 @@ spawnGroups = function(position, wave, path) {
 };
 
 scheduleSpawnPoint = function(spawnPoint) {
+  var path;
+  path = spawnPoint.path();
   return spawnPoint.waves.forEach(function(wave) {
     var c;
     c = function() {
@@ -990,17 +1010,20 @@ create = function(g) {
   return scheduleSpawnPoints();
 };
 
-update = function() {};
+update = function() {
+  return enemy.updateEnemies();
+};
 
 module.exports = {
   load: load,
   create: create,
+  update: update,
   s1: spawnPoints[0].location,
   s2: spawnPoints[1].location
 };
 
 
-},{"./enemy":2}],12:[function(require,module,exports){
+},{"./enemy":2,"./move-enemies":7}],12:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
