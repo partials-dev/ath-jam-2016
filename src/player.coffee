@@ -1,5 +1,6 @@
 metronome = require './metronome'
 duplicates = require './duplicates'
+health = require './health'
 mana = require './mana'
 music = require './music'
 midi = require './midi'
@@ -31,6 +32,7 @@ create = (game) ->
   player.scale.set 50, 50
   player.anchor.set 0.5
 
+  health.create game
   mana.create game
 
   # physics

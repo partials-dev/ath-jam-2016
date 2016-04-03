@@ -131,7 +131,7 @@ module.exports = {
 };
 
 
-},{"./attack":1,"./enemy":3,"./standing-stones":13}],3:[function(require,module,exports){
+},{"./attack":1,"./enemy":3,"./standing-stones":14}],3:[function(require,module,exports){
 var create, createUpdate, enemies, game, load, spawn, updateEnemies;
 
 game = null;
@@ -202,6 +202,48 @@ module.exports = {
 
 
 },{}],4:[function(require,module,exports){
+var STARTING_BAR_WIDTH, STARTING_health, create, currentHealth, healthBar, spend, updateBar;
+
+STARTING_BAR_WIDTH = 50;
+
+STARTING_health = 100;
+
+currentHealth = STARTING_health;
+
+healthBar = null;
+
+create = function(game) {
+  healthBar = game.add.graphics(50, 50);
+  return updateBar(1);
+};
+
+updateBar = function(proportion) {
+  healthBar.clear();
+  healthBar.lineStyle(10, 0xff0000, 1);
+  healthBar.moveTo(0, 0);
+  return healthBar.lineTo(STARTING_BAR_WIDTH * proportion, 0);
+};
+
+spend = function(amount) {
+  var currenthealth, proportion;
+  currentHealth -= amount;
+  if (currentHealth < 0) {
+    currenthealth = 0;
+  }
+  proportion = currentHealth / STARTING_HEALTH;
+  return updateBar(proportion);
+};
+
+module.exports = {
+  create: create,
+  current: function() {
+    return currentHealth;
+  },
+  spend: spend
+};
+
+
+},{}],5:[function(require,module,exports){
 var GAME_HEIGHT, GAME_WIDTH, Phaser, base, create, duplicates, game, met, metronome, moveEnemies, music, player, preload, render, spawnPoints, standingStones, update, worshippers;
 
 Phaser = require('./phaser');
@@ -227,6 +269,7 @@ GAME_WIDTH = $(window).width();
 GAME_HEIGHT = $(window).height();
 
 preload = function() {
+  game.load.image('map', 'img/map1.png', 1, 1);
   game.renderer.renderSession.roundPixels = true;
   Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
   worshippers.load(game);
@@ -246,7 +289,10 @@ base = {
 };
 
 create = function() {
+  var background;
   game.physics.startSystem(Phaser.Physics.ARCADE);
+  background = game.add.sprite(0, 0, 'map');
+  background.scale.set(game.width / 5040, game.height / 3960);
   standingStones.create(game);
   worshippers.create(game);
   music.create(game);
@@ -280,7 +326,7 @@ game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, '', {
 });
 
 
-},{"./duplicates":2,"./metronome":6,"./move-enemies":8,"./music":9,"./phaser":10,"./player":11,"./spawn-points":12,"./standing-stones":13,"./worshippers":14}],5:[function(require,module,exports){
+},{"./duplicates":2,"./metronome":7,"./move-enemies":9,"./music":10,"./phaser":11,"./player":12,"./spawn-points":13,"./standing-stones":14,"./worshippers":15}],6:[function(require,module,exports){
 var STARTING_BAR_WIDTH, STARTING_MANA, create, currentMana, manaBar, spend, updateBar;
 
 STARTING_BAR_WIDTH = 50;
@@ -292,7 +338,7 @@ currentMana = STARTING_MANA;
 manaBar = null;
 
 create = function(game) {
-  manaBar = game.add.graphics(50, 50);
+  manaBar = game.add.graphics(50, 100);
   return updateBar(1);
 };
 
@@ -322,7 +368,7 @@ module.exports = {
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var beat, beatDuration, closestBeat, create, isHit, lastBeatAt, lastMeasureStartedAt, nextBeat, nextBeatAt, nextMeasureStartsAt, progressThroughMeasure, tempo;
 
 tempo = 100;
@@ -419,7 +465,7 @@ module.exports = {
 };
 
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var AudioContext, activeNotes, btn, btnBox, channel, cmd, context, data, deviceInfoInputs, deviceInfoOutputs, frequencyFromNoteNumber, keyData, listInputs, log, logger, midi, midiMovementState, note, noteOff, noteOn, onMIDIFailure, onMIDIMessage, onMIDISuccess, onStateChange, randomRange, rangeMap, signal, type, velocity;
 
 log = console.log.bind(console);
@@ -597,7 +643,7 @@ module.exports = {
 };
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var create, createUpdate, game, load, path1, path2, pathIsVisible, plot, scaleLane;
 
 game = null;
@@ -645,12 +691,12 @@ create = function(g, base, s1, s2) {
   bmd1.addToWorld();
   bmd2.addToWorld();
   lane1 = {
-    x: [s1.x, 0.2, 0.3, 0.3, base.x],
-    y: [s1.y, 0.3, 0.4, 0.7, base.y]
+    x: [s1.x, 0.12, 0.3, 0.32, base.x],
+    y: [s1.y, 0.3, 0.35, 0.7, base.y]
   };
   lane2 = {
-    x: [s2.x, 0.3, base.x],
-    y: [s2.y, 0.3, base.y]
+    x: [s2.x, 0.7, 0.35, 0.32, base.x],
+    y: [s2.y, 0.34, 0.34, 0.7, base.y]
   };
   path1 = plot(lane1, bmd1);
   return path2 = plot(lane2, bmd2);
@@ -712,7 +758,7 @@ module.exports = {
 };
 
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var background, cast, castFail, castSucceed, create, duplicateSummoned, duplicates, game, load, metronome, onBeat,
   hasProp = {}.hasOwnProperty;
 
@@ -785,17 +831,19 @@ module.exports = {
 };
 
 
-},{"./metronome":6}],10:[function(require,module,exports){
+},{"./metronome":7}],11:[function(require,module,exports){
 module.exports = Phaser;
 
 
-},{}],11:[function(require,module,exports){
-var SPEED, cast, create, cursors, duplicates, getPressedDirections, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
+},{}],12:[function(require,module,exports){
+var SPEED, cast, create, cursors, duplicates, getPressedDirections, health, load, mana, manaCosts, metronome, midi, move, movementScheme, music, onCast, player, summon,
   hasProp = {}.hasOwnProperty;
 
 metronome = require('./metronome');
 
 duplicates = require('./duplicates');
+
+health = require('./health');
 
 mana = require('./mana');
 
@@ -838,6 +886,7 @@ create = function(game) {
   player = game.add.sprite(200, 200, 'player');
   player.scale.set(50, 50);
   player.anchor.set(0.5);
+  health.create(game);
   mana.create(game);
   game.physics.arcade.enable(player);
   player.body.bounce.y = 0.2;
@@ -951,7 +1000,7 @@ module.exports = {
 };
 
 
-},{"./duplicates":2,"./mana":5,"./metronome":6,"./midi":7,"./music":9}],12:[function(require,module,exports){
+},{"./duplicates":2,"./health":4,"./mana":6,"./metronome":7,"./midi":8,"./music":10}],13:[function(require,module,exports){
 var SPAWN_DELAY, create, enemies, enemy, game, load, moveEnemies, scheduleSpawnPoint, scheduleSpawnPoints, spawnGroup, spawnGroups, spawnPoints, update,
   hasProp = {}.hasOwnProperty;
 
@@ -962,7 +1011,7 @@ moveEnemies = require('./move-enemies');
 spawnPoints = [
   {
     location: {
-      x: 0.2,
+      x: 0.11,
       y: 0.0
     },
     path: moveEnemies.path1,
@@ -984,7 +1033,7 @@ spawnPoints = [
   }, {
     location: {
       x: 1.0,
-      y: 0.3
+      y: 0.33
     },
     path: moveEnemies.path2,
     waves: [
@@ -1077,7 +1126,7 @@ module.exports = {
 };
 
 
-},{"./enemy":3,"./move-enemies":8}],13:[function(require,module,exports){
+},{"./enemy":3,"./move-enemies":9}],14:[function(require,module,exports){
 var create, load, metronome, onBeat, onCast, params, spriteKeys, standingStones;
 
 metronome = require('./metronome');
@@ -1148,7 +1197,7 @@ module.exports = {
 };
 
 
-},{"./metronome":6}],14:[function(require,module,exports){
+},{"./metronome":7}],15:[function(require,module,exports){
 var cast, create, embiggen, i, load, metronome, move, params, toX, whichSprite, worshippers;
 
 metronome = require('./metronome');
@@ -1228,4 +1277,4 @@ module.exports = {
 };
 
 
-},{"./metronome":6}]},{},[4]);
+},{"./metronome":7}]},{},[5]);
