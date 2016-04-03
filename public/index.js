@@ -470,7 +470,7 @@ module.exports = {
 
 
 },{}],6:[function(require,module,exports){
-var base, bmd, create, enemy, enemyAlive, game, health, lane, load, path, pathIsVisible, pi, plot, scaleLane, spawn, update;
+var base, bmd, create, enemy, enemyAlive, game, getPath1, getPath2, health, load, path, path1, path2, pathIsVisible, pi, plot, scaleLane, spawn1, spawn2, update;
 
 bmd = null;
 
@@ -487,18 +487,36 @@ health = 10;
 pathIsVisible = 1;
 
 base = {
-  x: 0.5,
-  y: 0
-};
-
-spawn = {
-  x: 0.5,
+  x: 0.3,
   y: 1
 };
 
-lane = {
-  x: [spawn.x, 0.7, 0.3, base.x],
-  y: [spawn.y, 0.6, 0.4, base.y]
+spawn1 = {
+  x: 0.2,
+  y: 0.0
+};
+
+spawn2 = {
+  x: 1.0,
+  y: 0.3
+};
+
+path1 = {
+  x: [spawn1.x, 0.2, 0.3, 0.3, base.x],
+  y: [spawn1.y, 0.3, 0.4, 0.7, base.y]
+};
+
+path2 = {
+  x: [spawn2.x, 0.3, base.x],
+  y: [spawn2.y, 0.3, base.y]
+};
+
+getPath1 = function(spawnPosition) {
+  return path1;
+};
+
+getPath2 = function(spawnPosition) {
+  return path2;
 };
 
 scaleLane = function(lane) {
@@ -523,27 +541,30 @@ scaleLane = function(lane) {
     }
     return results;
   })();
-  return console.log(lane);
+  return lane;
 };
 
 load = function(game) {
   return game.load.spritesheet('enemy', 'img/blue.bmp', 1, 1);
 };
 
-create = function(g) {
+create = function(g, s1, s2) {
   game = g;
   bmd = game.add.bitmapData(game.width, game.height);
+  spawn1 = s1;
+  spawn2 = s2;
   bmd.addToWorld();
   enemy = game.add.sprite(0, 0, 'enemy');
   enemy.scale.set(50, 50);
   enemy.anchor.set(0.5);
   enemy.damage = 2;
   enemy.speed = 10;
-  return plot();
+  plot(path1);
+  return plot(path2);
 };
 
-plot = function() {
-  var i, p, px, py, results, x;
+plot = function(lane) {
+  var i, p, px, py, x;
   bmd.clear();
   path = [];
   x = 1 / game.width;
@@ -560,12 +581,11 @@ plot = function() {
     i += x;
   }
   p = 0;
-  results = [];
   while (p < lane.x.length) {
     bmd.rect(lane.x[p] - 3, lane.y[p] - 3, 6, 6, "rgba(255, 0, 0, " + pathIsVisible + ")");
-    results.push(p++);
+    p++;
   }
-  return results;
+  return lane;
 };
 
 enemyAlive = true;
