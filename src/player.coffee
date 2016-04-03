@@ -104,7 +104,7 @@ move = ->
 summon = (element) ->
   cost = manaCosts[element]
   if (mana.current() - cost) > 0
-    player.animations.play "summon.#{element}"
+    #player.animations.play "summon.#{element}"
     mana.spend cost
     duplicates.spawn element, player.body.center
     music.duplicateSummoned element

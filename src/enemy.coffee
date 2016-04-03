@@ -25,7 +25,7 @@ spawn = (type, path) ->
   key = "enemy.#{type}"
   enemy = enemies.create path[0].x, path[0].y, key
   #enemy.scale.set 10, 10
-  enemy.scale.set 0.2, 0.2
+  enemy.scale.set 0.1, 0.1
   enemy.update = createUpdate enemy, path
   enemy.speed = 1
   enemy.health = healthByType[type]

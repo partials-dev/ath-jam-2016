@@ -96,10 +96,11 @@ game = null;
 summonSignal = new Phaser.Signal();
 
 load = function(game) {
-  game.load.atlasJSONArray('dulplicate.fire', 'img/player/dupe-fire.png', 'img/player/dupe-fire.json');
-  game.load.atlasJSONArray('dulplicate.water', 'img/player/dupe-water.png', 'img/player/dupe-water.json');
-  game.load.atlasJSONArray('dulplicate.earth', 'img/player/dupe-earth.png', 'img/player/dupe-earth.json');
-  return game.load.atlasJSONArray('dulplicate.wind', 'img/player/dupe-wind.png', 'img/player/dupe-wind.json');
+  game.load.atlasJSONArray('duplicate.fire', 'img/player/dupe-fire.png', 'img/player/dupe-fire.json');
+  game.load.atlasJSONArray('duplicate.water', 'img/player/dupe-water.png', 'img/player/dupe-water.json');
+  game.load.atlasJSONArray('duplicate.earth', 'img/player/dupe-earth.png', 'img/player/dupe-earth.json');
+  game.load.atlasJSONArray('duplicate.wind', 'img/player/dupe-wind.png', 'img/player/dupe-wind.json');
+  return game.load.spritesheet('duplicate.attack-range', 'img/1x1.png', 1, 1);
 };
 
 duplicates = null;
@@ -148,10 +149,10 @@ summon = function(element) {
 spawn = function(element, position) {
   var attackRange, dup;
   attackRange = attackRanges.create(position.x, position.y, "duplicate.attack-range", 1);
-  attackRange.scale.set(50, 50);
+  attackRange.scale.set(0.1, 0.1);
   attackRange.anchor.set(0.5);
   dup = duplicates.create(position.x, position.y, "duplicate." + element, 1);
-  dup.scale.set(30, 30);
+  dup.scale.set(0.1, 0.1);
   dup.anchor.set(0.5);
   dup.nextFire = 0;
   dup.attackRange = attackRange;
@@ -219,7 +220,7 @@ spawn = function(type, path) {
   var enemy, key;
   key = "enemy." + type;
   enemy = enemies.create(path[0].x, path[0].y, key);
-  enemy.scale.set(0.2, 0.2);
+  enemy.scale.set(0.1, 0.1);
   enemy.update = createUpdate(enemy, path);
   enemy.speed = 1;
   enemy.health = healthByType[type];
@@ -848,8 +849,7 @@ module.exports = {
 
 
 },{}],10:[function(require,module,exports){
-var background, bgBeat, bgLength, cast, castFail, castSucceed, create, dupBeat, dupLength, duplicateSummoned, duplicates, game, load, metronome, onBeat,
-  hasProp = {}.hasOwnProperty;
+var background, cast, castFail, castSucceed, create, currentMeasure, duplicateSummoned, duplicates, game, getSound, load, metronome, onBeat, patterns;
 
 metronome = require('./metronome');
 
@@ -864,52 +864,91 @@ background = null;
 create = function(g) {
   game = g;
   background = game.add.audio('background');
-  duplicates.fire = game.add.audio('duplicate.fire', 0);
-  duplicates.water = game.add.audio('duplicate.water', 0);
-  duplicates.wind = game.add.audio('duplicate.wind', 0);
-  duplicates.earth = game.add.audio('duplicate.earth', 0);
+  duplicates.earth = [];
+  duplicates.earth[1] = game.add.audio("duplicate.earth.1", 0);
+  duplicates.earth[2] = game.add.audio("duplicate.earth.2", 0);
+  duplicates.earth[3] = game.add.audio("duplicate.earth.3", 0);
+  duplicates.earth[4] = game.add.audio("duplicate.earth.4", 0);
+  duplicates.fire = [];
+  duplicates.fire[1] = game.add.audio("duplicate.fire.1", 0);
+  duplicates.fire[2] = game.add.audio("duplicate.fire.2", 0);
+  duplicates.fire[3] = game.add.audio("duplicate.fire.3", 0);
+  duplicates.fire[4] = game.add.audio("duplicate.fire.4", 0);
+  duplicates.water = [];
+  duplicates.water[1] = game.add.audio("duplicate.water.1", 0);
+  duplicates.water[2] = game.add.audio("duplicate.water.2", 0);
+  duplicates.water[3] = game.add.audio("duplicate.water.3", 0);
+  duplicates.water[4] = game.add.audio("duplicate.water.4", 0);
+  duplicates.water[5] = game.add.audio("duplicate.water.5", 0);
+  duplicates.water[6] = game.add.audio("duplicate.water.6", 0);
+  duplicates.water[7] = game.add.audio("duplicate.water.7", 0);
+  duplicates.water[8] = game.add.audio("duplicate.water.8", 0);
+  duplicates.water[9] = game.add.audio("duplicate.water.9", 0);
+  duplicates.water[10] = game.add.audio("duplicate.water.10", 0);
   cast.succeed = game.add.audio('cast.succeed');
   return cast.fail = game.add.audio('cast.fail');
 };
 
-dupBeat = 0;
+patterns = {
+  water: [1, 2, 3, 4, 1, 2, 5, 4, 6, 2, 7, 8, 1, 2, 9, 10],
+  earth: [1, 2, 1, 2, 1, 2, 1, 3, 1, 2, 1, 2, 1, 2, 1, 4],
+  fire: [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]
+};
 
-dupLength = (4 * 16) - 1;
+currentMeasure = {
+  fire: 0,
+  earth: 0,
+  water: 0
+};
 
-bgBeat = 0;
-
-bgLength = (64 * 4) - 1;
+getSound = function(element, beat) {
+  var n, sound;
+  n = patterns[element][currentMeasure[element]];
+  sound = duplicates[element][n];
+  currentMeasure[element] = currentMeasure[element] + 1;
+  currentMeasure[element] = currentMeasure[element] % 16;
+  return sound;
+};
 
 onBeat = function(beat) {
-  var element, sound;
-  if (dupBeat === 0) {
-    for (element in duplicates) {
-      if (!hasProp.call(duplicates, element)) continue;
-      sound = duplicates[element];
-      sound.play();
-    }
+  var element, i, len, ref, results;
+  ref = ['water', 'earth', 'fire'];
+  results = [];
+  for (i = 0, len = ref.length; i < len; i++) {
+    element = ref[i];
+    results.push(getSound(element, beat).play());
   }
-  if (bgBeat === 0) {
-    background.play();
-  }
-  dupBeat++;
-  dupBeat = dupBeat % dupLength;
-  bgBeat++;
-  return bgBeat = bgBeat % bgLength;
+  return results;
 };
 
 load = function(game) {
   game.load.audio('background', 'sound/bg.wav');
-  game.load.audio('duplicate.fire', 'sound/fire.wav');
-  game.load.audio('duplicate.wind', 'sound/wind.wav');
-  game.load.audio('duplicate.earth', 'sound/earth.wav');
-  game.load.audio('duplicate.water', 'sound/water.wav');
+  game.load.audio('duplicate.fire.1', 'sound/Fire/Fire 1.wav');
+  game.load.audio('duplicate.fire.2', 'sound/Fire/Fire 2.wav');
+  game.load.audio('duplicate.fire.3', 'sound/Fire/Fire 3.wav');
+  game.load.audio('duplicate.fire.4', 'sound/Fire/Fire 4.wav');
+  game.load.audio('duplicate.earth.1', 'sound/Earth/Earth 1.wav');
+  game.load.audio('duplicate.earth.2', 'sound/Earth/Earth 2.wav');
+  game.load.audio('duplicate.earth.3', 'sound/Earth/Earth 3.wav');
+  game.load.audio('duplicate.earth.4', 'sound/Earth/Earth 4.wav');
+  game.load.audio('duplicate.water.1', 'sound/Water/Water 1.wav');
+  game.load.audio('duplicate.water.2', 'sound/Water/Water 2.wav');
+  game.load.audio('duplicate.water.3', 'sound/Water/Water 3.wav');
+  game.load.audio('duplicate.water.4', 'sound/Water/Water 4.wav');
+  game.load.audio('duplicate.water.5', 'sound/Water/Water 5.wav');
+  game.load.audio('duplicate.water.6', 'sound/Water/Water 6.wav');
+  game.load.audio('duplicate.water.7', 'sound/Water/Water 7.wav');
+  game.load.audio('duplicate.water.8', 'sound/Water/Water 8.wav');
+  game.load.audio('duplicate.water.9', 'sound/Water/Water 9.wav');
+  game.load.audio('duplicate.water.10', 'sound/Water/Water 10.wav');
   game.load.audio('cast.succeed', 'sound/cast.mp3');
   return game.load.audio('cast.fail', 'sound/cast-fail.mp3');
 };
 
 duplicateSummoned = function(element) {
-  return duplicates[element].fadeIn(50);
+  return duplicates[element].forEach(function(sound) {
+    return sound.fadeIn(50);
+  });
 };
 
 castSucceed = function() {
@@ -1082,7 +1121,6 @@ summon = function(element) {
   var cost;
   cost = manaCosts[element];
   if ((mana.current() - cost) > 0) {
-    player.animations.play("summon." + element);
     mana.spend(cost);
     duplicates.spawn(element, player.body.center);
     return music.duplicateSummoned(element);
@@ -1349,7 +1387,7 @@ create = function(game) {
   params.forEach(function(p) {
     var worshipper;
     worshipper = worshippers.create(p.x, p.y, p.sprite, 1);
-    worshipper.scale.set(0.5, 0.5);
+    worshipper.scale.set(0.2, 0.2);
     if (p.sprite === 'worshipper.elder') {
       return worshipper.animations.add('cast', [3, 1], 5, false);
     }

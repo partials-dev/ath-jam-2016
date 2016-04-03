@@ -21,7 +21,7 @@ create = (game) ->
   worshippers = game.add.group()
   params.forEach (p) ->
     worshipper = worshippers.create p.x, p.y, p.sprite, 1
-    worshipper.scale.set 0.5, 0.5
+    worshipper.scale.set 0.2, 0.2
     if p.sprite is 'worshipper.elder'
       worshipper.animations.add 'cast', [3, 1], 5, false
   worshippers.pivot.set 0, 0
